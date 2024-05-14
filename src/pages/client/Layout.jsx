@@ -3,12 +3,12 @@ import Footer from "../../components/client/Footer"
 import Header from "../../components/client/Header"
 import '../../assets/css/client/bootstrap.min.css'
 import '../../assets/css/client/style.css'
-import '../../assets/lib/animate/animate.min.css'
-import '../../assets/lib/owlcarousel/assets/owl.carousel.min.css'
 import 'google-fonts'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import $ from 'jquery';
+
 import { Outlet, Link, useLocation } from "react-router-dom"
 
 const Layout = (props) => {
@@ -35,6 +35,9 @@ const Layout = (props) => {
             case '/about':
                 document.getElementById("about_us_page").classList.add("active")
                 return 'Về chúng tôi'
+            case '/service':
+                document.getElementById("service_page").classList.add("active")
+                return ' Dịch vụ'
             case '/login':
                 return 'Đăng nhập'
             case '/register':
@@ -48,6 +51,7 @@ const Layout = (props) => {
             <Header />
             <Outlet />
             <Footer />
+
         </>
     )
 }

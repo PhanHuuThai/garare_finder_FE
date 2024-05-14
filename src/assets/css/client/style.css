@@ -309,10 +309,33 @@ h6,
 
 }
 
+.carousel-item img {
+    height: 72vh;
+    /* 50% of the viewport height */
+    object-fit: cover;
+    /* Ensures the image covers the container while maintaining aspect ratio */
+}
+
+.carousel-control-next-icon {
+    background-color: #ff1818;
+    border-radius: 50vh;
+    width: 40px;
+    height: 40px;
+}
+
+/* Đặt màu cho biểu tượng "Prev" */
+.carousel-control-prev-icon {
+    background-color: #ff1818;
+    border-radius: 50vh;
+    width: 40px;
+    height: 40px;
+}
+
 .imgHeaderPage {
     height: 100% !important;
     width: 100% !important;
 }
+
 .header-carousel .owl-nav {
     position: absolute;
     top: 50%;

@@ -7,6 +7,7 @@ import Contact from './pages/client/Contact'
 import Register from './pages/client/Register'
 import Login from './pages/client/Login'
 import About from './pages/client/AboutUS'
+import Service from './pages/client/Service'
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
             <Route path="about" element={<About />} />
+            <Route path="service" element={<Service />} />
           </Route>
 
         </Routes>
