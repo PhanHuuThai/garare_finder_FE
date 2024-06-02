@@ -8,6 +8,7 @@ import Register from './pages/client/Register'
 import Login from './pages/client/Login'
 import About from './pages/client/AboutUS'
 import Service from './pages/client/Service'
+import PrivateRoute from './components/PrivateRoute'
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="about" element={<About />} />
             <Route path="service" element={<Service />} />
+            <Route
+              path="protected"
+              element={
+                <PrivateRoute>
+                  <Service />
+                </PrivateRoute>
+              }
+            />
           </Route>
 
         </Routes>
