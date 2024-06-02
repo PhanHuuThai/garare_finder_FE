@@ -1,8 +1,33 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom"
+import { useAuth } from "../../context/AuthContext";
+import config from "../../config";
+import axios from "axios";
 
 const Login = () => {
-    
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [error, setError] = useState("")
+    const { login } = useAuth()
+    const navigate = useNavigate()
+    const handleLogin = async (e) => {
+        e.preventDefault()
+        setError(null)
+        try {
+            const response = await axios.post('http://127.0.0.1:8000/api/auth/login', { email, password }, {
+                withCredentials: true, // Include cookies in the request
+            });
+            console.log(response)
+            if (response && response.data.status) {
+                login(response.data.token)
+                console.log('dddddddddd')
+                navigate('/contact')
+            }
+            setError(response.message)
+
+        } catch (error) {
+        }
+    }
     return (
         <div
             className="container-xxl bg-white p-5 mt-5 login"
@@ -89,7 +114,7 @@ const Login = () => {
                             </h3>
                             <p className="mb-4">Chào mừng bạn đến với GFINDER. Đăng nhập ngay!</p>
                         </div>
-                        <form action="" method="POST">
+                        <form onSubmit={handleLogin}>
                             <div className="row g-3">
                                 <div className="col-md-12">
                                     <div className="form-floating">
@@ -99,6 +124,8 @@ const Login = () => {
                                             id="email"
                                             name="email"
                                             placeholder="Email đăng nhập"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
                                         />
                                         <label htmlFor="email">Email</label>
                                     </div>
@@ -111,10 +138,15 @@ const Login = () => {
                                             id="password"
                                             name="password"
                                             placeholder="Mật khẩu đăng nhập"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
                                         />
                                         <label htmlFor="password">Mật khẩu</label>
                                     </div>
                                 </div>
+                                {error &&
+                                    <span style={{ color: "red" }}>{error}</span>
+                                }
                                 <div className="d-flex mb-5 align-items-center">
                                     <div className="col-md-6 col-6 justify-content-center ">
                                         {/* Checkbox */}

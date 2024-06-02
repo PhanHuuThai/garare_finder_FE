@@ -13,20 +13,20 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const token = localStorage.getItem('token')
         if (token) {
-            const decoded = jwtDecode(token);
+            //const decoded = jwtDecode(token);
             setAuth({
                 isAuthenticated: true,
-                user: decoded
+                user: token
             })
         }
     }, []);
 
     const login = (token) => {
         localStorage.setItem('token', token);
-        const decoded = jwtDecode(token);
+        //const decoded = jwtDecode(token);
         setAuth({
             isAuthenticated: true,
-            user: decoded
+            user: token
         })
     }
 
