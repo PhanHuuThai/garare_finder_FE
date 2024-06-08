@@ -10,6 +10,8 @@ import About from './pages/client/AboutUS'
 import Service from './pages/client/Service'
 import PrivateRoute from './components/PrivateRoute'
 import Profile from './pages/client/Profile'
+import GarageList from './pages/client/GarageList'
+import GarageDetail from './pages/client/GarageDetail'
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
             <Route path="about" element={<About />} />
             <Route path="service" element={<Service />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="garage-list" element={<GarageList />} />
+            <Route path="garage-detail/:id" element={<GarageDetail />} />
             <Route
               path="protected"
               element={
