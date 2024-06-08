@@ -9,6 +9,7 @@ import Login from './pages/client/Login'
 import About from './pages/client/AboutUS'
 import Service from './pages/client/Service'
 import PrivateRoute from './components/PrivateRoute'
+import Profile from './pages/client/Profile'
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="about" element={<About />} />
             <Route path="service" element={<Service />} />
+            <Route path="profile" element={<Profile />} />
             <Route
               path="protected"
               element={

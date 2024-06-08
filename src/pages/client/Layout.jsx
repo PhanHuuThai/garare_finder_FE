@@ -7,7 +7,7 @@ import 'google-fonts'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.css'
-import $ from 'jquery';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { Outlet, Link, useLocation } from "react-router-dom"
 
@@ -42,6 +42,8 @@ const Layout = (props) => {
                 return 'Đăng nhập'
             case '/register':
                 return 'Đăng ký'
+            case '/profile':
+                return 'Trang cá nhân'
             default:
                 return 'Garage Finder'
         }

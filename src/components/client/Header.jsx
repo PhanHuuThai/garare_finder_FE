@@ -50,36 +50,36 @@ const Header = () => {
                                 className="d-lg-flex d-none d-md-none d-sm-none mx-2 my-2"
                                 style={{ backgroundColor: "#000", width: "1.5px", height: 39 }}
                             />
-                            {/* <div className="nav-item dropdown" style={{ minWidth: 100 }}>
-                            <a
-                                href="#"
-                                className="nav-link dropdown-toggle"
-                                data-bs-toggle="dropdown"
-                            >
-                                Name
-                            </a>
-                            <div className="dropdown-menu rounded-0 m-0">
-                                <a href="{{ url('/profile') }}" className="dropdown-item">
-                                    Thông tin cá nhân
+                            <div className="nav-item dropdown" style={{ minWidth: 100 }}>
+                                <a
+                                    href="#"
+                                    className="nav-link dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                >
+                                    Name
                                 </a>
-                                <a href="{{ url('/list-garage') }}" className="dropdown-item">
-                                    Garage của tôi
-                                </a>
-                                <a href="{{ url('/chat') }}" className="dropdown-item">
-                                    Tin nhắn
-                                </a>
-                                <a href="404.html" className="dropdown-item">
-                                    404 Error
-                                </a>
-                                <Link className="dropdown-item">
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        <button className="btn btn-primary" type="submit">
-                                            Đăng xuất
-                                        </button>
-                                    </form>
-                                </a>
+                                <div className="dropdown-menu rounded-0 m-0">
+                                    <Link to="/profile" className="dropdown-item">
+                                        Thông tin cá nhân
+                                    </Link>
+                                    <a href="{{ url('/list-garage') }}" className="dropdown-item">
+                                        Garage của tôi
+                                    </a>
+                                    <a href="{{ url('/chat') }}" className="dropdown-item">
+                                        Tin nhắn
+                                    </a>
+                                    <a href="404.html" className="dropdown-item">
+                                        404 Error
+                                    </a>
+                                    <Link className="dropdown-item">
+                                        <form action="" method="POST">
+                                            <button className="btn btn-primary" type="submit">
+                                                Đăng xuất
+                                            </button>
+                                        </form>
+                                    </Link>
+                                </div>
                             </div>
-                        </div> */}
                             <Link
                                 to="/login"
                                 className="btn btn-primary px-3 d-md-flex d-sm-flex d-flex d-lg-flex "

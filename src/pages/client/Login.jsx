@@ -14,17 +14,14 @@ const Login = () => {
         e.preventDefault()
         setError(null)
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/auth/login', { email, password }, {
-                withCredentials: true, // Include cookies in the request
+            const response = await axios.post(`${config.apiBaseUrl}/auth/login`, { email, password }, {
+                withCredentials: true,
             });
-            console.log(response)
             if (response && response.data.status) {
                 login(response.data.token)
-                console.log('dddddddddd')
-                navigate('/contact')
+                navigate('/')
             }
-            setError(response.message)
-
+            setError(response.data.message)
         } catch (error) {
         }
     }
