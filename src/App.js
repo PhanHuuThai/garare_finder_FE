@@ -12,6 +12,7 @@ import PrivateRoute from './components/PrivateRoute'
 import Profile from './pages/client/Profile'
 import GarageList from './pages/client/GarageList'
 import GarageDetail from './pages/client/GarageDetail'
+import GoogleLoginCallback from './components/client/GoogleLoginCallback'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="profile" element={<Profile />} />
             <Route path="garage-list" element={<GarageList />} />
             <Route path="garage-detail/:id" element={<GarageDetail />} />
+            <Route path="/google-login-callback" element={<GoogleLoginCallback />} />
             <Route
               path="protected"
               element={

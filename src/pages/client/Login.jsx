@@ -25,6 +25,8 @@ const Login = () => {
         } catch (error) {
         }
     }
+
+    
     return (
         <div
             className="container-xxl bg-white p-5 mt-5 login"
@@ -82,7 +84,7 @@ const Login = () => {
                         <div className="col-md-1"></div>
                         <div className="col-md-10">
                             <a
-                                href="{{ route('loginGoogle') }}"
+                                href={config.apiGoogleUrl}
                                 className="btn btn-social "
                                 style={{
                                     height: 54,
