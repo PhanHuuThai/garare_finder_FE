@@ -1,16 +1,458 @@
-import { Tab } from "@coreui/coreui"
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import ModalUserInfo from "./ModalUserInfo";
-import classNames from "classnames";
-import { Nav, NavItem, TabContent, TabPane } from "reactstrap";
+
+import { act, useEffect, useState } from "react";    
+import axios from "axios";
+import { useCommon } from "../../context/CommonContext";
+import config from "../../config";
+import ReactLoading from 'react-loading';
+import { Dialog } from 'primereact/dialog';
 
 
 const Profile = () => {
+    const { cities, vehicles } = useCommon()
     const [activeTab, setActiveTab] = useState('1');
+    const [districts, setDistricts] = useState([])
+    const [wards, setWards] = useState([])
+    const [loading, setLoading] = useState(false);
+    const [cars, setCars] = useState([])
+    const [error, setError] = useState(null);
+    const [isUpdate, setIsUpdate] = useState(0)
+    const [isCreateCar, setIscreateCar] = useState(0)
+    const [createCarDi, setCreateCarDi] = useState(false)
+    const [updateCarDi, setUpdateCarDi] = useState(false)
+    const [favouriteGarage, setFavouriteGarage] = useState([])
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [errorChangePass, setErrorChangePass] = useState('');
+    const [confirmPass, setConfirmPass] = useState('')
+
+    const [user, setUser] = useState({
+        address: '',
+        email: '',
+        id: '',
+        image: '',
+        name: '',
+        phone: '',
+        username: '',
+        id_ward: '',
+        id_province: '',
+        id_district: ''
+    });
+
+    const [newCar, setNewCar] = useState({
+        brand: '',
+        name: '',
+        license: '',
+        type: '',
+        image: ''
+      });
+
+    const [carUpdate, setCarUpdate] = useState({
+        id: "",
+        brand: '',
+        name: '',
+        license: '',
+        type: '',
+        image: ''
+    })
+
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            const address = storedUser.address ? storedUser.address.split(',')[0] : '';
+            setUser({
+                address: address,
+                email: storedUser.email || '',
+                id: storedUser.id || '',
+                image: storedUser.image || '',
+                name: storedUser.name || '',
+                phone: storedUser.phone || '',
+                username: storedUser.username || '',
+                id_ward: storedUser.id_ward,
+                id_province: storedUser.id_province,
+                id_district: storedUser.id_district
+            });
+        }
+    }, [isUpdate]);
+
+    useEffect(() => {
+        const fetchDistrict = async () => {
+            if(user.id_province) {
+                const apiUrl = `${config.apiBaseUrl}/client/get-districts/${user.id_province}`;
+                try {
+                    setLoading(true); 
+                  const response = await axios.get(apiUrl);
+                  let data = response.data;
+                  if (!data.success) {
+                      setError(data.message)
+                  }
+                  setDistricts(data.data);
+                } catch (error) {
+                  setError(error.message);
+                } finally {
+                    setLoading(false); // Kết thúc loading
+                }
+        
+            }
+          };
+          fetchDistrict()
+    }, [user.id_province])
+
+    useEffect(() => {
+        const fetchWards = async () => {
+            if(user.id_district)
+            {
+                setLoading(true); 
+                const apiUrl = `${config.apiBaseUrl}/client/get-wards/${user.id_district}`;
+                try {
+                  const response = await axios.get(apiUrl);
+                  let data = response.data;
+                  if (!data.success) {
+                      setError(data.message)
+                  }
+                  setWards(data.data);
+                } catch (error) {
+                  setError(error.message);
+                } finally {
+                    setLoading(false); // Kết thúc loading
+                }
+        
+            }
+          };
+          fetchWards()
+    }, [user.id_district])
+
+    useEffect(() => {
+        const fetchCards = async () => {
+            setLoading(true); 
+                try {
+                    const token = localStorage.getItem('token');
+                    setLoading(true); 
+                    const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-cars`, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                            'Authorization': `Bearer ${token}` 
+                        }
+                    });
+                    if(response.data.success){
+                        setCars(response.data.data)
+                    }
+                    setError(response.data.message)
+                    // Handle success (e.g., show a success message or update the UI)
+                } catch (error) {
+                    console.error('There was an error updating the user!', error);
+                    // Handle error (e.g., show an error message)
+                } finally {
+                    setLoading(false); // Kết thúc loading
+                }
+            };
+        fetchCards()
+    },[isCreateCar])
+
+    useEffect(() => {
+        const fetchFavouriteGarage = async () => {
+            setLoading(true); 
+                try {
+                    const token = localStorage.getItem('token');
+                    setLoading(true); 
+                    const response = await axios.get(`${config.apiBaseUrl}/client/favourite-garage`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}` 
+                        }
+                    });
+                    if(response.data.success){
+                        setFavouriteGarage(response.data.data)
+                    }
+                    setError(response.data.message)
+                    // Handle success (e.g., show a success message or update the UI)
+                } catch (error) {
+                    console.error('There was an error updating the user!', error);
+                    // Handle error (e.g., show an error message)
+                } finally {
+                    setLoading(false); // Kết thúc loading
+                }
+            };
+        fetchFavouriteGarage()
+    },[])
+
+    const [imageFile, setImageFile] = useState(null);
+
+    const handleInputChange = (setter) => (e) => {
+        const { name, value } = e.target;
+        setter(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+    
+
+    const handleImageChange = (setter) => (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setter(prevUser => ({
+                ...prevUser,
+                image: imageUrl
+            }));
+        }
+
+        setImageFile(e.target.files[0]);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('name', user.name);
+        formData.append('phone', user.phone);
+        formData.append('nest', user.address);
+        formData.append('province', user.id_province)
+        formData.append('district', user.id_district)
+        formData.append('ward', user.id_ward)
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        const token = localStorage.getItem('token');
+        try {
+            setLoading(true); 
+            const response = await axios.post(`${config.apiBaseUrl}/client/profile/update`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success){
+                localStorage.setItem('user', JSON.stringify((response.data.data)));
+                setIsUpdate(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
+                setImageFile(null)
+            }
+            
+            console.log(response.data);
+            // Handle success (e.g., show a success message or update the UI)
+        } catch (error) {
+            console.error('There was an error updating the user!', error);
+            // Handle error (e.g., show an error message)
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    }
+
+    const handleCreateCar = async (e) => {
+        e.preventDefault();
+        let formData = new FormData();
+        formData.append('id_brand', newCar.brand);
+        formData.append('name', newCar.name);
+        formData.append('type', newCar.type);
+        formData.append('license', newCar.license)
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        const token = localStorage.getItem('token');
+        try {
+            setLoading(true); 
+            const response = await axios.post(`${config.apiBaseUrl}/client/profile/create-car`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success){
+                setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
+                setImageFile(null)
+                setCreateCarDi(false)
+                setNewCar({
+                    brand: '',
+                    name: '',
+                    license: '',
+                    type: '',
+                    image: ''
+                })
+            }
+            
+            console.log(response.data);
+            // Handle success (e.g., show a success message or update the UI)
+        } catch (error) {
+            console.error('There was an error updating the user!', error);
+            // Handle error (e.g., show an error message)
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    }
+
+    const getCarById = async (id) => {
+
+        const token = localStorage.getItem('token');
+        try {
+            setLoading(true); 
+            const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-car/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success){
+                const data = response.data.data
+                setCarUpdate({
+                    id: data.id,
+                    brand: data.id_brand,
+                    name: data.name,
+                    license: data.license,
+                    type: data.type,
+                    image: data.image
+                })
+                setUpdateCarDi(true)
+            }
+            setError(response.data.message)
+            // Handle success (e.g., show a success message or update the UI)
+        } catch (error) {
+            console.error('There was an error updating the user!', error);
+            // Handle error (e.g., show an error message)
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    }
+
+    const handleUpdateCar = async (e) => {
+        let formData = new FormData();
+        formData.append('_method', 'put');
+        formData.append('id_brand', carUpdate.brand);
+        formData.append('type', carUpdate.type);
+        formData.append('license', carUpdate.license)
+        formData.append('name', carUpdate.name);
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+        const token = localStorage.getItem('token');
+        try {
+            setLoading(true); 
+            const response = await axios.post(`${config.apiBaseUrl}/client/profile/update-car/${carUpdate.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success){
+                setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
+                setImageFile(null)
+                setUpdateCarDi(false)
+            }
+            console.log(response)
+            setError(response.data.message)
+            // Handle success (e.g., show a success message or update the UI)
+        } catch (error) {
+            console.error('There was an error updating the user!', error);
+            // Handle error (e.g., show an error message)
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    }
+
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+
+    };
+
+    const handleDeleteCar = async (id) => {
+        const token = localStorage.getItem('token');
+    
+        const confirmDelete = window.confirm("Are you sure you want to delete this car?");
+        if (!confirmDelete) {
+            return;
+        }
+    
+        try {
+            setLoading(true); 
+            const response = await axios.get(`${config.apiBaseUrl}/client/profile/delete-car/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+    
+            if (response.data.success) {
+                // Handle success (e.g., refresh the car list)
+                setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+                console.log('Car deleted successfully');
+            } else {
+                // Handle server error response
+                console.error('Error deleting car:', response.data.message);
+            }
+        } catch (error) {
+            console.error('There was an error deleting the car!', error);
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    };
+
+    const validatePassword = (password) => {
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /[0-9]/.test(password);
+        return hasUpperCase && hasLowerCase && hasNumber;
+    };    
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        if (!oldPassword || !newPassword || !confirmPass) {
+            setErrorChangePass('Vui lòng điền đủ thông tin');
+            return;
+          }
+        if (!validatePassword(newPassword)) {
+            setErrorChangePass('Mật khẩu mới phải chứa ít nhất một ký tự viết hoa, một ký tự viết thường và một số');
+            return;
+          }
+        if (newPassword !== confirmPass) {
+            setErrorChangePass('Mật khẩu mới và xác nhận mật khẩu không trùng khớp');
+            return;
+          }
+        const token = localStorage.getItem('token');
+        setLoading(true);
+        try {
+            const response = await axios.post(`${config.apiBaseUrl}/auth/repass`,
+                {
+                  oldPassword: oldPassword,
+                  newPassword: newPassword,
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`
+                  }
+                }
+              );
+            setLoading(false);
+          if (response.data.success === false) {
+            setErrorChangePass('Mật khẩu cũ không đúng');
+          } else {
+            
+            setErrorChangePass('');
+            setNewPassword('')
+            setOldPassword('')
+            setConfirmPass('')
+            alert('Đổi mật khẩu thành công');
+          }
+       
+        } catch (error) {
+          console.error('Error changing password:', error);
+          setErrorChangePass('Có lỗi xảy ra, vui lòng thử lại sau');
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+      };
+    
 
     const toggle = tab => {
         if (activeTab !== tab) setActiveTab(tab);
+        console.log(activeTab)
     };
 
     return (
@@ -114,6 +556,17 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className="col-lg-9 col-md-7 col-sm-7 col-12 mt-3">
+                <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
                     <div className="tab-content" id="v-pills-tabContent">
                         {/* Thông tin cá nhân */}
                         <div
@@ -122,26 +575,19 @@ const Profile = () => {
                             role="tabpanel"
                             aria-labelledby="v-pills-home-tab"
                         >
-                            <form
-                                className="form-block"
-                                id="form_info"
-                                action=""
-                                method="post"
-                                encType="multipart/form-data"
-                            >
+                            <form className="form-block" id="form_info" onSubmit={handleSubmit}>
                                 <div className="row">
-                                    {/* Column */}
                                     <div className="col-lg-4 col-xlg-3 col-md-12">
                                         <div className="">
                                             <div className="img-fluid">
-                                                <img
-                                                    width="100%"
-                                                    height="80%"
-                                                    alt="user"
-                                                    className="avatar"
-                                                    id="avatar"
-                                                    src=""
-                                                />
+                                            <img
+                                                width="80%"
+                                                height="80%"
+                                                alt="user"
+                                                className="avatar"
+                                                id="avatar"
+                                                src={user.image || require('../../assets/images/default-ava.webp')}
+                                            />
                                             </div>
                                             <div className="user-btm-box mt-3 d-md-flex">
                                                 <div className="col-md-2 col-sm-2 text-start mt-2">
@@ -154,6 +600,7 @@ const Profile = () => {
                                                         name="image"
                                                         id="imageAvatar"
                                                         accept=".jpg, .jpeg, .png, .webp"
+                                                        onChange={handleImageChange(setUser)}
                                                     />
                                                 </div>
                                                 <span className="text-danger" id="imageErrorMsg" />
@@ -163,7 +610,7 @@ const Profile = () => {
                                     <div className="col-lg-8 col-xlg-9 col-md-12 content-in-tab">
                                         <div className="col-12">
                                             <div className="mb-4 mt-2">
-                                                <h4 lass="display-5 mb-4">Thông tin của tôi</h4>
+                                                <h4 className="display-5 mb-4">Thông tin của tôi</h4>
                                                 <p className="mb-4">
                                                     Quản lý đầy đủ thông tin để bảo mật tài khoản!
                                                 </p>
@@ -182,7 +629,8 @@ const Profile = () => {
                                                     name="name"
                                                     className="form-control"
                                                     aria-describedby="passwordHelpInline"
-                                                    defaultValue=""
+                                                    value={user.name || ''}
+                                                    onChange={handleInputChange(setUser)}
                                                 />
                                                 <span className="text-danger" id="nameErrorMsg" />
                                             </div>
@@ -201,7 +649,7 @@ const Profile = () => {
                                                     disabled=""
                                                     className="form-control"
                                                     aria-describedby="passwordHelpInline"
-                                                    defaultValue=""
+                                                    value={user.email || ''}
                                                 />
                                             </div>
                                         </div>
@@ -218,7 +666,8 @@ const Profile = () => {
                                                     name="phone"
                                                     className="form-control"
                                                     aria-describedby="passwordHelpInline"
-                                                    defaultValue=""
+                                                    value={user.phone || ''}
+                                                    onChange={handleInputChange(setUser)}
                                                 />
                                                 <span className="text-danger" id="phoneErrorMsg" />
                                             </div>
@@ -236,24 +685,15 @@ const Profile = () => {
                                                 </label>
                                             </div>
                                             <div className="col-9">
-                                                <textarea
-                                                    className="form-control"
-                                                    rows={2}
-                                                    id="inputAddress"
-                                                    name="address"
-                                                    disabled=""
-                                                    defaultValue={
-                                                        ""
-                                                    }
-                                                />
                                                 <div className="row">
                                                     <div className="col-md-12 col-12 mt-4">
                                                         <input
                                                             type="text"
-                                                            name="nest"
                                                             className="form-control"
                                                             placeholder="Tổ, thôn, số nhà, đường"
-                                                            defaultValue=""
+                                                            name="address"
+                                                            value={user.address || ''}
+                                                            onChange={handleInputChange(setUser)}
                                                         />
                                                         <span className="text-danger" id="nestErrorMsg" />
                                                     </div>
@@ -262,16 +702,20 @@ const Profile = () => {
                                                     <div className="col-md-12 col-12 mt-4">
                                                         <select
                                                             className="form-select"
-                                                            name="province"
+                                                            name="id_province"
                                                             id="province"
                                                             aria-label="Default select example"
+                                                            value={user.id_province}
+                                                            onChange={handleInputChange(setUser)}
                                                         >
                                                             <option value={0} disabled="" selected="">
                                                                 Thành phố/Tỉnh
                                                             </option>
-                                                            <option value="">
-
+                                                            {cities.map((city) => (
+                                                            <option key={city.id} value={city.id}>
+                                                                {city.name}
                                                             </option>
+                                                            ))}
                                                         </select>
                                                         <span className="text-danger" id="provinceErrorMsg" />
                                                     </div>
@@ -279,13 +723,17 @@ const Profile = () => {
                                                         <div className="col-md-12 col-12 mt-4">
                                                             <select
                                                                 className="form-select"
-                                                                name="distrist"
+                                                                name="id_district"
                                                                 id="distrist"
                                                                 aria-label="Default select example"
+                                                                value={user.id_district}
+                                                                onChange={handleInputChange(setUser)}
                                                             >
-                                                                <option value={0} disabled="" selected="">
-                                                                    Quận/huyện
-                                                                </option>
+                                                            {districts.map((district) => (
+                                                            <option key={district.id} value={district.id}>
+                                                                {district.name}
+                                                            </option>
+                                                            ))}
                                                             </select>
                                                             <span className="text-danger" id="distristErrorMsg" />
                                                         </div>
@@ -293,13 +741,17 @@ const Profile = () => {
                                                             <div className="col-md-12 col-12 mt-4">
                                                                 <select
                                                                     className="form-select"
-                                                                    name="ward"
+                                                                    name="id_ward"
                                                                     id="ward"
                                                                     aria-label="Default select example"
+                                                                    value={user.id_ward}
+                                                                    onChange={handleInputChange(setUser)}
                                                                 >
-                                                                    <option value={0} disabled="" selected="">
-                                                                        Phường/xã
-                                                                    </option>
+                                                                {wards.map((ward) => (
+                                                                <option key={ward.id} value={ward.id}>
+                                                                    {ward.name}
+                                                                </option>
+                                                                ))}
                                                                 </select>
                                                                 <span className="text-danger" id="wardErrorMsg" />
                                                             </div>
@@ -311,15 +763,15 @@ const Profile = () => {
                                         <div className="row g-3 align-items-center">
                                             <div className="col-3"></div>
                                             <div className="col-9">
-                                                <button className="btn btn-primary mt-4">
+                                                <button type="submit" className="btn btn-primary mt-4">
                                                     Cập nhập thông tin
                                                 </button>
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Column */}
                                 </div>
                             </form>
+
                         </div>
                         {/* Xe của tôi*/}
                         <div
@@ -328,341 +780,136 @@ const Profile = () => {
                             role="tabpanel"
                             aria-labelledby="v-pills-profile-tab"
                         >
-                            <button className="btn btn-dark mx-1" id="allMycar">
+                            <button className="btn btn-dark mx-1" id="allMycar" >
                                 Tất cả
                             </button>
-                            <button className="btn btn-primary" id="createMycar">
+                            <button className="btn btn-primary" id="createMycar" onClick={() => setCreateCarDi(true)}>
                                 Thêm xe
                             </button>
                             <div className="row g-4 mt-1" id="allcar">
-                                <div className="col-lg-5 col-md-10">
-                                    <div className="property-item rounded overflow-hidden">
+                                {cars.map(car => (
+                                    <div className="col-lg-6 col-md-6" key={car.id}>
+                                        <div className="property-item rounded overflow-hidden" style={{width: '430px'}}>
                                         <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src=""
-                                                    alt=""
-                                                />
+                                            <a href="#">
+                                            <img className="img-fluid" src={car.image} alt={car.name} />
                                             </a>
                                             <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                            {car.license}
                                             </div>
                                         </div>
                                         <div className="p-4 pb-0">
-                                            <h5 className="text_red mb-3">
-
-                                            </h5>
-                                            <a className="d-block h5 mb-2" href="">
-
-                                            </a>
-                                            <p>
-
-                                            </p>
+                                            <h5 className="text_red mb-3">{car.name}</h5>
+                                            <p>Type: {car.type}</p>
                                         </div>
                                         <div className="d-flex">
                                             <small className="flex-fill text-start py-2 ms-4 me-1">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-dark w-100 d-flex justify-content-center"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#staticBackdrop"
-                                                >
-                                                    Cập nhật
-                                                </button>
-                                                <div
-                                                    className="modal fade mt-2"
-                                                    id="staticBackdrop"
-                                                    data-bs-backdrop="static"
-                                                    data-bs-keyboard="false"
-                                                    tabIndex={-1}
-                                                    aria-labelledby="staticBackdropLabel"
-                                                    aria-hidden="true"
-                                                >
-                                                    <div className="modal-dialog modal-md modal-dialog-centered">
-                                                        <div className="modal-content">
-                                                            <div className="modal-header">
-                                                                <h5
-                                                                    className="modal-title text-center"
-                                                                    id="staticBackdropLabel"
-                                                                >
-                                                                    Cập nhật thông tin xe
-                                                                </h5>
-                                                                <button
-                                                                    type="button"
-                                                                    className="btn-close"
-                                                                    data-bs-dismiss="modal"
-                                                                    aria-label="Close"
-                                                                />
-                                                            </div>
-                                                            <div className="modal-body ">
-                                                                <form
-                                                                    action=""
-                                                                    method="POST"
-                                                                    id="edit-car"
-                                                                    encType="multipart/form-data"
-                                                                >
-                                                                    <input
-                                                                        type="hidden"
-                                                                        defaultValue=""
-                                                                        name="id_car"
-                                                                    />
-                                                                    <div className="mb-3 text-start">
-                                                                        <label
-                                                                            htmlFor="image_edit_car"
-                                                                            className="form-label"
-                                                                        >
-                                                                            Ảnh:
-                                                                            <span className="text_red">*</span>
-                                                                        </label>
-                                                                        <input
-                                                                            type="file"
-                                                                            className="form-control"
-                                                                            id="image_edit_car"
-                                                                            name="image"
-                                                                            aria-describedby="file-error"
-                                                                        />
-                                                                        <div
-                                                                            id="file-error"
-                                                                            className="form-text text_red"
-                                                                        ></div>
-                                                                    </div>
-                                                                    <div className="mb-3 text-start">
-                                                                        <label
-                                                                            htmlFor="license_edit"
-                                                                            className="form-label"
-                                                                        >
-                                                                            Biển số:
-                                                                            <span className="text_red">*</span>
-                                                                        </label>
-                                                                        <input
-                                                                            type="text"
-                                                                            className="form-control"
-                                                                            id="license_edit"
-                                                                            name="license"
-                                                                            defaultValue=""
-                                                                            aria-describedby="license-edit-error"
-                                                                        />
-                                                                        <div
-                                                                            id="license-edit-error"
-                                                                            className="form-text text_red"
-                                                                        ></div>
-                                                                    </div>
-                                                                    <div className="mb-3 text-start">
-                                                                        <label
-                                                                            htmlFor="name_car_edit"
-                                                                            className="form-label"
-                                                                        >
-                                                                            Tên xe:
-                                                                            <span className="text_red" />
-                                                                        </label>
-                                                                        <input
-                                                                            type="text"
-                                                                            className="form-control"
-                                                                            id="name_car_edit"
-                                                                            name="name_car_edit"
-                                                                            aria-describedby="name-car-error"
-                                                                            disabled=""
-                                                                            defaultValue=""
-                                                                        />
-                                                                        <div
-                                                                            id="name-car-error"
-                                                                            className="form-text text_red"
-                                                                        ></div>
-                                                                    </div>
-                                                                    <div className="mb-3 text-start">
-                                                                        <label
-                                                                            htmlFor="brand_car_edit"
-                                                                            className="form-label"
-                                                                        >
-                                                                            Hãng xe:
-                                                                            <span className="text_red" />
-                                                                        </label>
-                                                                        <input
-                                                                            type="text"
-                                                                            className="form-control"
-                                                                            id="brand_car_edit"
-                                                                            name="brand_car_edit"
-                                                                            disabled=""
-                                                                            aria-describedby="brand-car-error"
-                                                                            defaultValue=""
-                                                                        />
-                                                                        <div
-                                                                            id="brand-car-error"
-                                                                            className="form-text text_red"
-                                                                        ></div>
-                                                                    </div>
-                                                                    <div className="mb-3 text-start">
-                                                                        <label
-                                                                            htmlFor="type_car_edit"
-                                                                            className="form-label"
-                                                                        >
-                                                                            Kiểu xe:
-                                                                            <span className="text_red" />
-                                                                        </label>
-                                                                        <input
-                                                                            type="text"
-                                                                            className="form-control"
-                                                                            id="type_car_edit"
-                                                                            name="type_car_edit"
-                                                                            disabled=""
-                                                                            aria-describedby="brand-car-error"
-                                                                            defaultValue=""
-                                                                        />
-                                                                        <div
-                                                                            id="type-car-error"
-                                                                            className="form-text text_red"
-                                                                        ></div>
-                                                                    </div>
-                                                                    <div className="mb-3 d-flex align-items-center justify-content-center">
-                                                                        <button
-                                                                            className="btn btn-primary"
-                                                                            type="submit"
-                                                                        >
-                                                                            Cập nhật
-                                                                        </button>
-                                                                    </div>
-                                                                </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                                            <button
+                                                type="button"
+                                                className="btn btn-dark w-100 d-flex justify-content-center"
+                                                onClick={() => getCarById(car.id)}
+                                            >
+                                                Cập nhật
+                                            </button>
                                             </small>
                                             <small className="flex-fill text-start py-2 me-4 ms-1">
-                                                <button className="btn btn-primary w-100 d-flex justify-content-center">
-                                                    Xóa
-                                                </button>
+                                            <button
+                                                className="btn btn-primary w-100 d-flex justify-content-center"
+                                                onClick={() => handleDeleteCar(car.id)}
+                                            >
+                                                Xóa
+                                            </button>
                                             </small>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="form-car" id="form-car">
-                                <form
-                                    className="form-block mt-3"
-                                    id="form_mycar"
-                                    action=""
-                                    method="post"
-                                    encType="multipart/form-data"
-                                >
-                                    <div className="row">
-                                        <div className="col-lg-4 col-xlg-3 col-md-12">
-                                            <div className="">
-                                                <div className="img-fluid">
-                                                    <img
-                                                        width="100%"
-                                                        height="80%"
-                                                        alt="user"
-                                                        className="img-car"
-                                                        id="img-car"
-                                                        src=""
-                                                    />
-                                                </div>
-                                                <div className="user-btm-box mt-3 d-md-flex">
-                                                    <div className="col-md-2 col-sm-2 text-start mt-2">
-                                                        <h6>Ảnh : </h6>
-                                                    </div>
-                                                    <div className="col-md-10 col-sm-10">
-                                                        <input
-                                                            type="file"
-                                                            className="form-control"
-                                                            name="image"
-                                                            id="imageCar"
-                                                            accept=".jpg, .jpeg, .png, .webp"
-                                                        />
-                                                        <span className="text-danger" id="imageCarErrorMsg" />
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
-                                        <div className="col-lg-8 col-xlg-9 col-md-12 content-in-tab">
-                                            <div className="col-12">
-                                                <div className="mb-4 mt-2">
-                                                    <h4 lass="display-5 mb-4">Xe của tôi</h4>
-                                                    <p className="mb-4">Thêm xe trước khi đặt lịch!</p>
-                                                </div>
-                                            </div>
-                                            <div className="row g-3 align-items-center">
-                                                <div className="col-3">
-                                                    <label htmlFor="inputBrand" className="col-form-label">
-                                                        Hãng xe:<span className="text_red">*</span>
-                                                    </label>
-                                                </div>
-                                                <div className="col-9">
-                                                    <select
-                                                        className="form-select"
-                                                        name="brand"
-                                                        id="brand"
-                                                        aria-label="Default select example"
-                                                    >
-                                                        <option value="">
-                                                            name
-                                                        </option>
-                                                    </select>
-                                                    <span className="text-danger" id="brandErrorMsg" />
-                                                </div>
-                                            </div>
-                                            <div className="row g-3 align-items-center mt-2">
-                                                <div className="col-3">
-                                                    <label htmlFor="inputNameCar" className="col-form-label">
-                                                        Mẫu xe:<span className="text_red">*</span>
-                                                    </label>
-                                                </div>
-                                                <div className="col-9">
-                                                    <input
-                                                        type="text"
-                                                        id="inputNameCar"
-                                                        name="name"
-                                                        className="form-control"
-                                                        defaultValue=""
-                                                    />
-                                                    <span className="text-danger" id="nameCarErrorMsg" />
-                                                </div>
-                                            </div>
-                                            <div className="row g-3 align-items-center mt-2">
-                                                <div className="col-3">
-                                                    <label htmlFor="inputType" className="col-form-label">
-                                                        Loại xe:<span className="text_red">*</span>
-                                                    </label>
-                                                </div>
-                                                <div className="col-9">
-                                                    <input
-                                                        type="text"
-                                                        id="inputType"
-                                                        name="type"
-                                                        className="form-control"
-                                                        defaultValue=""
-                                                    />
-                                                    <span className="text-danger" id="typeErrorMsg" />
-                                                </div>
-                                            </div>
-                                            <div className="row g-3 align-items-center mt-2">
-                                                <div className="col-3">
-                                                    <label htmlFor="inputLicense" className="col-form-label">
-                                                        Biển số:<span className="text_red">*</span>
-                                                    </label>
-                                                </div>
-                                                <div className="col-9">
-                                                    <input
-                                                        type="text"
-                                                        id="inputLicense"
-                                                        name="license"
-                                                        className="form-control"
-                                                        defaultValue=""
-                                                    />
-                                                    <span className="text-danger" id="licenseErrorMsg" />
-                                                </div>
-                                            </div>
-                                            <div className="row g-3 align-items-center">
-                                                <div className="col-3"></div>
-                                                <div className="col-9">
-                                                    <button className="btn btn-primary mt-4">Thêm xe</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {/* Column */}
                                     </div>
-                                </form>
+                                    ))}
+                                    <Dialog header="Header" visible={createCarDi} style={{ width: '50vw' }} onHide={() => {if (!createCarDi) return; setCreateCarDi(false); }}>
+                                    <div className="modal-body">
+                                        <form onSubmit={handleCreateCar}>
+                                        <div className="mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
+                                        <input type="file" id="image" name="image" onChange={handleImageChange(setNewCar)} />
+                                            <img 
+                                                className="img-fluid" 
+                                                width="40%"
+                                                height="40%"
+                                                alt="car"
+                                                id="image"
+                                                src={newCar.image || require('../../assets/images/car_default.png')}
+                                            />
+                                            
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="brand" className="form-label">Hãng xe:</label>
+                                            <select className="form-control" id="brand" name="brand" value={newCar.brand} onChange={handleInputChange(setNewCar)}>
+                                            <option value="">Chọn hãng xe</option>
+                                            {vehicles.map(vehicle => (
+                                                <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+                                            ))}
+                                            </select>
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="name" className="form-label">Tên xe:</label>
+                                            <input type="text" className="form-control" id="name" name="name" value={newCar.name} onChange={handleInputChange(setNewCar)} />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="license" className="form-label">Biển số:</label>
+                                            <input type="text" className="form-control" id="license" name="license" value={newCar.license} onChange={handleInputChange(setNewCar)} />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="type" className="form-label">Kiểu xe:</label>
+                                            <input type="text" className="form-control" id="type" name="type" value={newCar.type} onChange={handleInputChange(setNewCar)} />
+                                        </div>
+                                        <div className="d-flex justify-content-center">
+                                            <button type="submit" className="btn btn-primary">Thêm xe</button>
+                                        </div>
+                                        </form>
+                                    </div>
+                                 </Dialog>
+                                 <Dialog header="Header" visible={updateCarDi} style={{ width: '50vw' }} onHide={() => {if (!updateCarDi) return; setUpdateCarDi(false); }}>
+                                    <div className="modal-body">
+                                        <div>
+                                        <div className="mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
+                                        <input type="file" id="image" name="image" onChange={handleImageChange(setCarUpdate)} />
+                                            <img 
+                                                className="img-fluid" 
+                                                width="40%"
+                                                height="40%"
+                                                alt="car"
+                                                id="image"
+                                                src={carUpdate.image || require('../../assets/images/car_default.png')}
+                                            />
+                                            
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="brand" className="form-label">Hãng xe:</label>
+                                            <select className="form-control" id="brand" name="brand" value={carUpdate.brand} onChange={handleInputChange(setCarUpdate)}>
+                                            <option value="">Chọn hãng xe</option>
+                                            {vehicles.map(vehicle => (
+                                                <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+                                            ))}
+                                            </select>
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="name" className="form-label">Tên xe:</label>
+                                            <input type="text" className="form-control" id="name" name="name" value={carUpdate.name} onChange={handleInputChange(setCarUpdate)} />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="license" className="form-label">Biển số:</label>
+                                            <input type="text" className="form-control" id="license" name="license" value={carUpdate.license} onChange={handleInputChange(setCarUpdate)} />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label htmlFor="type" className="form-label">Kiểu xe:</label>
+                                            <input type="text" className="form-control" id="type" name="type" value={carUpdate.type} onChange={handleInputChange(setCarUpdate)} />
+                                        </div>
+                                        <div className="d-flex justify-content-center">
+                                            <button type="submit" onClick={handleUpdateCar} className="btn btn-primary">Cập nhật</button>
+                                        </div>
+                                        </div>
+                                    </div>
+                                 </Dialog>
                             </div>
+                            
                         </div>
                         {/* Đổi mật khẩu */}
                         <div
@@ -673,10 +920,7 @@ const Profile = () => {
                         >
                             <form
                                 className="form-block mt-3"
-                                id="form_repass"
-                                action=""
-                                method="post"
-                                encType="multipart/form-data"
+                                onSubmit={handleChangePassword}
                             >
                                 <div className="row">
                                     {/* Column */}
@@ -703,8 +947,10 @@ const Profile = () => {
                                                 <input
                                                     type="password"
                                                     id="current_password"
-                                                    name="current_password"
+                                                    name="oldPassword"
                                                     className="form-control"
+                                                    value={oldPassword} 
+                                                    onChange={(e) => setOldPassword(e.target.value)}
                                                 />
                                                 <span className="text-danger" id="curPassErrorMsg" />
                                             </div>
@@ -721,6 +967,8 @@ const Profile = () => {
                                                     id="password"
                                                     name="password"
                                                     className="form-control"
+                                                    value={newPassword} 
+                                                    onChange={(e) => setNewPassword(e.target.value)}
                                                 />
                                                 <span className="text-danger" id="passErrorMsg" />
                                             </div>
@@ -738,11 +986,14 @@ const Profile = () => {
                                                 <input
                                                     type="password"
                                                     id="password_confirmation"
-                                                    name="password_confirmation"
+                                                    name="confirmPass"
                                                     className="form-control"
+                                                    value={confirmPass} 
+                                                    onChange={(e) => setConfirmPass(e.target.value)}
                                                 />
                                                 <span className="text-danger" id="cpassErrorMsg" />
                                             </div>
+                                            {errorChangePass && <p style={{ color: 'red' }}>{errorChangePass}</p>}
                                         </div>
                                         <div className="row g-3 align-items-center">
                                             <div className="col-3"></div>
@@ -769,6 +1020,7 @@ const Profile = () => {
                                     className="col-xl-4 col-lg-6 col-md-12 card_favourite"
                                     id="favourite"
                                 >
+                                    {favouriteGarage.map(garage => (
                                     <div className="property-item rounded overflow-hidden">
                                         <div className="position-relative overflow-hidden">
                                             <a href="">
@@ -779,41 +1031,12 @@ const Profile = () => {
                                                     alt=""
                                                 />
                                             </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="delete_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_favourite"
-                                                        defaultValue=""
-                                                        className="id_favourite"
-                                                    />
-                                                    <input
-                                                        type="hidden"
-                                                        defaultValue=""
-                                                        name="key"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart-fill font-weight-bold text-danger" />
-                                                    </button>
-                                                </form>
-                                            </div>
+                                            
                                         </div>
                                         <div className="p-3 pb-0">
                                             <h5 className="text_red mb-3">$12,345</h5>
                                             <a className="d-block h5 mb-2" href="" style={{ height: 48 }}>
-
+                                                
                                             </a>
                                             <p
                                                 className="mt-2 "
@@ -825,6 +1048,7 @@ const Profile = () => {
                                                     WebkitBoxOrient: "vertical"
                                                 }}
                                             >
+                                                {garage.address_detail}
                                                 <i className="fa fa-map-marker-alt text_red me-2" />
 
                                             </p>
@@ -872,6 +1096,7 @@ const Profile = () => {
                                             </small>
                                         </div>
                                     </div>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -1050,7 +1275,7 @@ const Profile = () => {
                                                 <span style={{ width: 40 }}>
                                                     <i className="bi bi-clock-fill text_red me-2" />
                                                 </span>
-                                                Giờ mở cửa - đóng cửa: 
+                                                Giờ mở cửa - đóng cửa:
 
                                             </p>
                                         </div>

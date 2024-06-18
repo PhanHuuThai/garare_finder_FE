@@ -1,8 +1,38 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Carousel } from "react-bootstrap";
 import Search from "../../components/client/Search";
+import config from "../../config";
+import axios from "axios";
+import { useCommon } from "../../context/CommonContext";
 
 const Home = () => {
+    const {fetchServices} = useCommon()
+    const [garages, setGarages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    
+    const handleSearchResults = (data) => {
+        setGarages(data);
+      };
+
+    useEffect(() => {
+        const fetchGarages = async () => {
+        try {
+            const response = await axios.get(`${config.apiBaseUrl}/client/home/get-home-garage`);
+            if(!response.data.success) {
+                setError(response.data.message)
+            }
+            setGarages(response.data.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchGarages();
+    }, []);
+
     return (
         <div class="container-xxl bg-white p-0">
             {/* Slider */}
@@ -44,7 +74,7 @@ const Home = () => {
                 </div>
             </div>
             {/* Search Start */}
-            <Search />
+            <Search onSearchResults={handleSearchResults} />
             {/* List garage */}
             <div class="container-xxl py-5 px-3">
                 <div className="container">
@@ -66,564 +96,90 @@ const Home = () => {
                     <div className="tab-content">
                         <div id="tab-1" className="tab-pane fade show p-0 active">
                             <div className="row g-4">
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                            {garages.map((garage) => (
+                                    <div key={garage.id} className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div className="property-item rounded overflow-hidden">
                                         <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701769222_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Bá Vương Auto
-                                            </a>
-                                            <p
-                                                className="mt-2 "
+                                        <a href="">
+                                            <img
+                                            className="img-fluid"
+                                            src={require('../../assets/images/1_1701764702_t_1.webp')}
+                                            alt={garage.name}
+                                            />
+                                        </a>
+                                        <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
+                                            <form id="add_favourite" action="" method="POST">
+                                            <button
+                                                className="text_red"
+                                                type="submit"
                                                 style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
+                                                backgroundColor: "transparent",
+                                                border: "none",
+                                                width: 39
                                                 }}
                                             >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                155 Lê Đình Lý, Phường Hòa Thuận Đông, Quận Hải Châu, Thành phố Đà Nẵng
-                                            </p>
+                                                <i className="bi bi-heart font-weight-bold" />
+                                            </button>
+                                            </form>
                                         </div>
-                                        <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
-                                        </div>
-                                        <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701765119_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
                                         </div>
                                         <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Auto365 Quận 9
-                                            </a>
-                                            <p
-                                                className="mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                330 Hoàng Hữu Nam, Phường Long Thạnh Mỹ, Thành phố Thủ Đức, Thành phố Hồ Chí Minh
-                                            </p>
+                                        <a className="d-block h5 mb-2" href="" style={{ height: 48 }}>
+                                            {garage.name}
+                                        </a>
+                                        <p
+                                            className="mt-2"
+                                            style={{
+                                            height: 48,
+                                            overflow: "hidden",
+                                            display: "-webkit-box",
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: "vertical"
+                                            }}
+                                        >
+                                            <i className="fa fa-map-marker-alt text_red me-2" />
+                                            {garage.address_detail}
+                                        </p>
                                         </div>
                                         <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
+                                        <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
+                                        <small className="flex-fill text-start pb-2 ms-5">
+                                            <i className="bi bi-star-fill text_red " />
+                                            <i className="bi bi-star-fill text_red" />
+                                            <i className="bi bi-star-fill text_red" />
+                                            <i className="bi bi-star-fill text_red" />
+                                            <i className="bi bi-star-fill text_red me-1" /> 5
+                                        </small>
                                         </div>
                                         <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
+                                        <small className="flex-fill text-start border-end py-2 mx-4">
+                                            <i className="far fa-calendar-plus text_red me-3" />
+                                            <a href="" className="text_red">
+                                            Đặt lịch ngay
+                                            </a>
+                                        </small>
+                                        <small className="flex-fill text-start py-2">
+                                            <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
+                                            <form action="" className="d-inline-block" method="POST">
+                                            <input
+                                                type="hidden"
+                                                name="id_garage"
+                                                value={garage.id}
+                                            />
+                                            <button
+                                                className="text_red"
+                                                type="submit"
+                                                style={{ backgroundColor: "transparent", border: "none" }}
+                                            >
+                                                Nhắn tin
+                                            </button>
+                                            </form>
+                                        </small>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701764702_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Garage Ô tô Hiệp Cường
-                                            </a>
-                                            <p
-                                                className="mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                281/1 Lý Thường Kiệt, Phường 05, Quận 11, Thành phố Hồ Chí Minh
-                                            </p>
-                                        </div>
-                                        <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
-                                        </div>
-                                        <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
-                                        </div>
                                     </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701768849_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Bảo Khoa Auto
-                                            </a>
-                                            <p
-                                                className="mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                38 Võ Chí Công, Phường Hòa Xuân, Quận Cẩm Lệ, Thành phố Đà Nẵng
-                                            </p>
-                                        </div>
-                                        <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
-                                        </div>
-                                        <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701769934_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Garage Ô Tô Autocare420
-                                            </a>
-                                            <p
-                                                className="mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                420 Tôn Đức Thắng, Phường Hòa Minh, Quận Liên Chiểu, Thành phố Đà Nẵng
-                                            </p>
-                                        </div>
-                                        <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
-                                        </div>
-                                        <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="img-fluid"
-                                                    src={require('../../assets/images/1_1701765753_t_1.webp')}
-                                                    alt=""
-                                                />
-                                            </a>
-                                            <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
-                                                <form
-                                                    id="add_favourite"
-                                                    action=""
-                                                    method="POST"
-                                                >
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none",
-                                                            width: 39
-                                                        }}
-                                                    >
-                                                        <i className="bi bi-heart font-weight-bold" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                        <div className="p-4 pb-0 text-start">
-                                            <a
-                                                className="d-block h5 mb-2"
-                                                href=""
-                                                style={{ height: 48 }}
-                                            >
-                                                Garage Minh Đạt Auto
-                                            </a>
-                                            <p
-                                                className="mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                <i className="fa fa-map-marker-alt text_red me-2" />
-                                                976 Trường Chinh, Phường 15, Quận Tân Bình, Thành phố Hồ Chí Minh
-                                            </p>
-                                        </div>
-                                        <div className="d-flex">
-                                            <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                            <small className="flex-fill text-start pb-2 ms-5">
-                                                <i className="bi bi-star-fill text_red " />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red" />
-                                                <i className="bi bi-star-fill text_red me-1" /> 5
-                                            </small>
-                                        </div>
-                                        <div className="d-flex border-top mt-2">
-                                            <small className="flex-fill text-start border-end py-2 mx-4">
-                                                <i className="far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="flex-fill text-start py-2">
-                                                <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue="{{ $item->id }}"
-                                                    />
-                                                    <button
-                                                        className="text_red"
-                                                        type="submit"
-                                                        style={{ backgroundColor: "transparent", border: "none" }}
-                                                    >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
+                                ))}
+                              
                                 <div className="col-12 text-center wow fadeInUp" data-wow-delay="0.1s">
                                     <a className="btn btn-primary py-3 px-5" href="">
                                         Xem thêm

@@ -1,7 +1,10 @@
+import { useCommon } from '../../context/CommonContext'
+
 const { Link } = require('react-router-dom')
 const { default: Search } = require('../../components/client/Search')
 
 const Service = () => {
+    const {services} = useCommon()
     return (
         <div className="container-xxl bg-white p-0">
             {/* Header Start */}
@@ -54,102 +57,33 @@ const Service = () => {
                         </p>
                     </div>
                     <div className="row g-2">
-                        <div
-                            className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
-                            data-wow-delay="0.1s"
-                        >
-                            <a
-                                className="cat-item d-block bg-light text-center rounded p-3"
-                                href=""
+                            {services.map((service) => (
+                            <div
+                                key={service.id}
+                                className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
+                                data-wow-delay="0.1s"
                             >
-                                <div
-                                    className="rounded p-3"
-                                    style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
+                                <a
+                                    className="cat-item d-block bg-light text-center rounded p-3"
+                                    href=""
                                 >
-                                    <div className="icon mb-3">
-                                        <img
-                                            className="img-fluid img-card1"
-                                            src={require('../../assets/images/repair.webp')}
-                                            alt="Icon"
-                                        />
+                                    <div
+                                        className="rounded p-3"
+                                        style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
+                                    >
+                                        <div className="icon mb-3">
+                                            <img
+                                                className="img-fluid img-card1"
+                                                src={service.image}
+                                                alt="Icon"
+                                            />
+                                        </div>
+                                        <h5>{service.name}</h5>
+                                        <span>{service.description}</span>
                                     </div>
-                                    <h5>Sửa chữa</h5>
-                                    <span>Dịch vụ sửa chữa ô tô là các thủ tục được thực hiện để sửa hoặc phục hồi xe đang gặp sự cố, hư hỏng về máy móc.</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div
-                            className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
-                            data-wow-delay="0.1s"
-                        >
-                            <a
-                                className="cat-item d-block bg-light text-center rounded p-3"
-                                href=""
-                            >
-                                <div
-                                    className="rounded p-3"
-                                    style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
-                                >
-                                    <div className="icon mb-3">
-                                        <img
-                                            className="img-fluid img-card1"
-                                            src={require('../../assets/images/re-paint-fotor.png')}
-                                            alt="Icon"
-                                        />
-                                    </div>
-                                    <h5>Tân trang</h5>
-                                    <span>Dịch vụ tân trang ô tô là một quy trình toàn diện nhằm phục hồi một chiếc xe cũ hoặc bị hư hỏng về tình trạng gần như nguyên bản.</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div
-                            className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
-                            data-wow-delay="0.1s"
-                        >
-                            <a
-                                className="cat-item d-block bg-light text-center rounded p-3"
-                                href=""
-                            >
-                                <div
-                                    className="rounded p-3"
-                                    style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
-                                >
-                                    <div className="icon mb-3">
-                                        <img
-                                            className="img-fluid img-card1"
-                                            src={require('../../assets/images/maintenance.webp')}
-                                            alt="Icon"
-                                        />
-                                    </div>
-                                    <h5>Bảo dưỡng</h5>
-                                    <span>Dịch vụ bảo dưỡng ô tô là các quy trình định kỳ giúp giữ cho xe hoạt động trơn tru và ngăn ngừa các vấn đề tiềm ẩn.</span>
-                                </div>
-                            </a>
-                        </div>
-                        <div
-                            className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
-                            data-wow-delay="0.1s"
-                        >
-                            <a
-                                className="cat-item d-block bg-light text-center rounded p-3"
-                                href=""
-                            >
-                                <div
-                                    className="rounded p-3"
-                                    style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
-                                >
-                                    <div className="icon mb-3">
-                                        <img
-                                            className="img-fluid img-card1"
-                                            src={require('../../assets/images/rescue.webp')}
-                                            alt="Icon"
-                                        />
-                                    </div>
-                                    <h5>Cứu hộ</h5>
-                                    <span>Họ sẽ giúp khắc phục nhanh chóng các trường hợp xe gặp sự cố bất ngờ như hư xăm, hư khóa, bị ngập nước, hư ắc quy, bị tai nạn…</span>
-                                </div>
-                            </a>
-                        </div>
+                                </a>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>

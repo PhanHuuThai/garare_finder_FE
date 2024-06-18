@@ -17,11 +17,12 @@ const Login = () => {
             const response = await axios.post(`${config.apiBaseUrl}/auth/login`, { email, password }, {
                 withCredentials: true,
             });
-            if (response && response.data.status) {
-                login(response.data.token)
+            console.log(response)
+            if (response && response.data.data.success) {
+                login(response.data)
                 navigate('/')
             }
-            setError(response.data.message)
+            setError(response.data.data.message)
         } catch (error) {
         }
     }

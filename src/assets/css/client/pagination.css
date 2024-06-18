@@ -1,0 +1,47 @@
+/* General container styling */
+.pagination {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+/* Individual page item styling */
+.pagination li {
+    margin: 0 4px; /* Slightly increased margin for better spacing */
+}
+
+.pagination a {
+    color: #d9534f; /* Red color for links */
+    text-decoration: none;
+    padding: 6px 12px; /* Slightly increased padding for larger buttons */
+    font-size: 15px; /* Slightly larger font size */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Styling for the active page */
+.pagination .selected a {
+    background-color: #d9534f; /* Red background for active page */
+    color: white;
+    border-color: #d9534f; /* Red border for active page */
+}
+
+/* Hover effect */
+.pagination a:hover {
+    background-color: #f2dede; /* Light red for hover */
+    color: #a94442; /* Darker red for text on hover */
+}
+
+/* Disabled state for previous/next buttons */
+.pagination .disabled a {
+    color: #6c757d;
+    pointer-events: none;
+}
+
+/* Break label styling */
+.pagination .break-me {
+    cursor: default;
+}

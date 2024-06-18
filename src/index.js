@@ -5,6 +5,8 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
 import CommonProvider from './context/CommonContext';
+import 'primereact/resources/themes/saga-blue/theme.css';  // Theme
+import 'primereact/resources/primereact.min.css'; 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

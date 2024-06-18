@@ -1,14 +1,245 @@
-import { useEffect } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import config from "../../config";
+import ReactLoading from 'react-loading';
+import { Dialog } from 'primereact/dialog';
+import { useCommon } from "../../context/CommonContext";
 
 
 const GarageDetail = () => {
     const { id } = useParams()
+    const {services} = useCommon();
+    const [garage, setGarage] = useState([]);
+    const [serviceGarage, setServiceGarage] = useState([]);
+    const [brands, setBrands] = useState([]);
+    const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [cars, setCars] = useState([]);
+    const [user, setUser] = useState({
+        email: '',
+        name: '',
+        phone: '',
+        car: '',
+        service: '',
+        time: '',
+        date: ''
+    });
+
     useEffect(() => {
-        console.log('id', id)
+        const fetchGarages = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/garage/get-detail/${id}`, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(!response.data.success) {
+                setError(response.data.message)
+            }
+            setGarage(response.data.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchGarages();
     }, [])
+
+    useEffect(() => {
+        const fetchServices = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/garage/get-services/${id}`, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(!response.data.success) {
+                setError(response.data.message)
+            }
+            setServiceGarage(response.data.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchServices();
+    }, [])
+
+    useEffect(() => {
+        const fetchBrands = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/garage/get-brands/${id}`, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(!response.data.success) {
+                setError(response.data.message)
+            }
+            setBrands(response.data.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchBrands();
+    }, [])
+
+    useEffect(() => {
+        const fetchCars = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-cars`, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(!response.data.success) {
+                setError(response.data.message)
+            }
+            setCars(response.data.data);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+        };
+        fetchCars();
+    }, [])
+
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            const address = storedUser.address ? storedUser.address.split(',')[0] : '';
+            setUser({
+                email: storedUser.email,
+                name: storedUser.name || '',
+                phone: storedUser.phone || ''
+            });
+        }
+    }, []);
+
+    const openModal = () => {
+        setShowModal(true);
+    };
+
+    const closeModal = () => {
+        setShowModal(false);
+    };
+
+
+    const validateForm = () => {
+        return user.name && user.phone && user.email && user.car && user.service && user.time && user.date;
+      };
+
+      const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+    
+    const validatePhone = (phone) => {
+        const regex = /^[0-9]{10,11}$/;
+        return regex.test(phone);
+    };
+
+    const handleBooking = async (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            setError('Bạn cần nhập đầy đủ thông tin');
+            return;
+        }
+
+        if (!validateEmail(user.email)) {
+            setError('Email không đúng định dạng');
+            return;
+        }
+    
+        if (!validatePhone(user.phone)) {
+            setError('Số điện thoại không đúng định dạng');
+            return;
+        }    
+    
+        const formattedTime = user.time;
+        const formattedDate = new Date(user.date).toLocaleDateString('en-GB').replace(/\//g, '-'); 
+    
+        const bookingData = {
+          ...user,
+          time: formattedTime,
+          date: formattedDate,
+          status: 1,
+          id_garage: id
+        };
+        setLoading(true);
+        try {
+          const token = localStorage.getItem('token');
+          const response = await axios.post(`${config.apiBaseUrl}/client/order`, bookingData, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          setLoading(false);
+          if (response.data.success) {
+            setShowModal(false); // Ẩn modal khi thành công
+            alert('Booking thành công!');
+          } else {
+            setError(response.data.message);
+          }
+        } catch (error) {
+          setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+      };
+    
+
+    const handleInputChange = (setter) => (e) => {
+        const { name, value } = e.target;
+        setter(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+
+    };
+
     return (
         <div className="container-xxl bg-white p-0">
+            <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
             {/* Header Start */}
             <div className="container-fluid">
                 <div className="row g-0 gx-5 align-items-start p-3">
@@ -18,25 +249,25 @@ const GarageDetail = () => {
                             data-wow-delay="0.1s"
                         >
                             <h4 className="mb-3">
-                                Name garage
+                                { garage.name }
                             </h4>
                             <p>
                                 <span style={{ width: 40 }}>
                                     <i className="bi bi-geo-alt-fill text_red me-2" />
                                 </span>
-                                Garage address
+                                {garage.address_detail}
                             </p>
                             <p>
                                 <span style={{ width: 40 }}>
                                     <i className="bi bi-clock-fill text_red me-2" />
                                 </span>
-                                Giờ mở cửa - đóng cửa: time_open - time_close
+                                Giờ mở cửa - đóng cửa: {garage.time_open} - {garage.time_close}
                             </p>
                             <p>
                                 <span style={{ width: 40 }}>
                                     <i className="fa fa-phone-alt text_red me-2" />
                                 </span>
-                                phone garage
+                                {garage.phone}
                             </p>
                         </div>
                     </div>
@@ -49,7 +280,7 @@ const GarageDetail = () => {
                                 type="button"
                                 className="btn btn-outline-danger mt-1 me-2"
                                 data-bs-toggle="modal"
-                                data-bs-target="#staticBackdrop"
+                                onClick={openModal}
                             >
                                 <i className="bi bi-calendar-plus-fill" />
                                 Đặt lịch
@@ -59,251 +290,244 @@ const GarageDetail = () => {
                             <i className="bi bi-flag-fill" />
                             Báo cáo
                         </div>
-                        <div
-                            className="modal fade mt-2"
-                            id="staticBackdrop"
-                            data-bs-backdrop="static"
-                            data-bs-keyboard="false"
-                            tabIndex={-1}
-                            aria-labelledby="staticBackdropLabel"
-                            aria-hidden="true"
-                        >
-                            <div className="modal-dialog modal-md modal-dialog-centered">
-                                <div className="modal-content">
-                                    <div className="modal-header">
-                                        <h5
-                                            className="modal-title text-center"
-                                            id="staticBackdropLabel"
-                                        >
-                                            Đặt lịch bảo dưỡng
-                                        </h5>
-                                        <button
-                                            type="button"
-                                            className="btn-close"
-                                            data-bs-dismiss="modal"
-                                            aria-label="Close"
+                        <Dialog header="Đặt lịch bảo dưỡng" visible={showModal} style={{ width: '50vw' }} onHide={() => {if (!showModal) return; setShowModal(false); }}>
+                            <div className="modal-body ">
+                                <form
+                                    onSubmit={handleBooking}
+                                    id="book_garage"
+                                >
+                                    {/* Column */}
+                                    <input
+                                        type="hidden"
+                                        defaultValue={1}
+                                        name="status"
+                                        id="status"
+                                    />
+                                    <input
+                                        type="hidden"
+                                        defaultValue=""
+                                        name="id_garage"
+                                    />
+                                    <div className="mb-3 text-start">
+                                        <label htmlFor="name" className="form-label">
+                                            Họ tên: <span className="text_red">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="name"
+                                            name="name"
+                                            defaultValue=""
+                                            value={user.name}
+                                            onChange={handleInputChange(setUser)}
+                                            aria-describedby="name-error"
                                         />
+                                        <div id="name-error" className="form-text text_red" />
                                     </div>
-                                    <div className="modal-body ">
-                                        <form
-                                            action=""
-                                            method="POST"
-                                            id="book_garage"
-                                            encType="multipart/form-data"
-                                        >
-                                            {/* Column */}
-                                            <input
-                                                type="hidden"
-                                                defaultValue={1}
-                                                name="status"
-                                                id="status"
-                                            />
-                                            <input
-                                                type="hidden"
-                                                defaultValue=""
-                                                name="id_garage"
-                                            />
+                                    <div className="mb-3 text-start">
+                                        <label htmlFor="phone" className="form-label">
+                                            Số điện thoại: <span className="text_red">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            id="phone"
+                                            name="phone"
+                                            defaultValue=""
+                                            value={user.phone}
+                                            onChange={handleInputChange(setUser)}
+                                            aria-describedby="phone-error"
+                                        />
+                                        <div id="phone-error" className="form-text text_red" />
+                                    </div>
+                                    <div className="mb-3 text-start">
+                                        <label htmlFor="email" className="form-label">
+                                            Email: <span className="text_red">*</span>
+                                        </label>
+                                        <input
+                                            type="email"
+                                            className="form-control"
+                                            id="email"
+                                            name="email"
+                                            defaultValue=""
+                                            value={user.email}
+                                            onChange={handleInputChange(setUser)}
+                                            aria-describedby="email-error"
+                                        />
+                                        <div id="email-error" className="form-text text_red" />
+                                    </div>
+                                    <div className="mb-3 text-start">
+                                        <label className="form-label">
+                                            Chọn xe của bạn: <span className="text_red me-3">*</span>
+                                            <span
+                                                className="text_red"
+                                                id="selected_car"
+                                                style={{ cursor: "pointer" }}
+                                            >
+                                            </span>
+                                        </label>
+                                        <div className="my_car">
+                                            <select
+                                                className="form-select mt-1"
+                                                name="car"
+                                                id="car"
+                                                aria-label=""
+                                                value={user.car}
+                                                onChange={handleInputChange(setUser)}
+                                            >
+                                                <option value={0} id="dis-0" disabled="" selected="">
+                                                    Xe trong danh sách của bạn
+                                                </option>
+                                                {cars.map((car) => (
+                                                    <option key={car.id} value={car.id}>
+                                                        {car.name}
+                                                    </option>
+                                                    ))}
+                                            </select>
+                                            <div id="mycar-error" className="form-text text_red" />
+                                        </div>
+                                        <div className="new_car d-none">
                                             <div className="mb-3 text-start">
-                                                <label htmlFor="name" className="form-label">
-                                                    Họ tên: <span className="text_red">*</span>
+                                                <label htmlFor="brand_all" className="form-label">
+                                                    Hãng xe: <span className="text_red me-3">*</span>
+                                                </label>
+                                                <select
+                                                    className="form-select"
+                                                    name="brand_all"
+                                                    id="brand_all"
+                                                    aria-label=""
+                                                >
+                                                    <option>
+                                                        
+                                                    </option>
+                                                </select>
+                                                <div id="brand-error" className="form-text text_red" />
+                                            </div>
+                                            <div className="mb-3 text-start">
+                                                <label htmlFor="name_car" className="form-label">
+                                                    Tên xe: <span className="text_red me-3">*</span>
                                                 </label>
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    id="name"
-                                                    name="name"
-                                                    defaultValue=""
-                                                    aria-describedby="name-error"
+                                                    id="name_car"
+                                                    defaultValue="null"
+                                                    name="name_car"
                                                 />
-                                                <div id="name-error" className="form-text text_red" />
+                                                <div
+                                                    id="namecar-error"
+                                                    className="form-text text_red"
+                                                />
                                             </div>
                                             <div className="mb-3 text-start">
-                                                <label htmlFor="phone" className="form-label">
-                                                    Số điện thoại: <span className="text_red">*</span>
+                                                <label htmlFor="license" className="form-label">
+                                                    Biển số xe: <span className="text_red me-3">*</span>
                                                 </label>
                                                 <input
-                                                    type="number"
+                                                    type="text"
                                                     className="form-control"
-                                                    id="phone"
-                                                    name="phone"
-                                                    defaultValue=""
-                                                    aria-describedby="phone-error"
+                                                    id="license"
+                                                    defaultValue="null"
+                                                    name="license"
                                                 />
-                                                <div id="phone-error" className="form-text text_red" />
-                                            </div>
-                                            <div className="mb-3 text-start">
-                                                <label htmlFor="email" className="form-label">
-                                                    Email: <span className="text_red">*</span>
-                                                </label>
-                                                <input
-                                                    type="email"
-                                                    className="form-control"
-                                                    id="email"
-                                                    name="email"
-                                                    defaultValue=""
-                                                    aria-describedby="email-error"
+                                                <div
+                                                    id="license-error"
+                                                    className="form-text text_red"
                                                 />
-                                                <div id="email-error" className="form-text text_red" />
                                             </div>
-                                            <div className="mb-3 text-start">
-                                                <label className="form-label">
-                                                    Chọn xe của bạn: <span className="text_red me-3">*</span>
-                                                    <span
-                                                        className="text_red"
-                                                        id="selected_car"
-                                                        style={{ cursor: "pointer" }}
-                                                    >
-                                                        <u>Chọn xe mới không có trong danh sách</u>
-                                                    </span>
-                                                </label>
-                                                <div className="my_car">
-                                                    <select
-                                                        className="form-select mt-1"
-                                                        name="car"
-                                                        id="car"
-                                                        aria-label=""
-                                                    >
-                                                        <option value={0} id="dis-0" disabled="" selected="">
-                                                            Xe trong danh sách của bạn
-                                                        </option>
-                                                        <option value="">
-                                                            car
-                                                        </option>
-                                                    </select>
-                                                    <div id="mycar-error" className="form-text text_red" />
-                                                </div>
-                                                <div className="new_car d-none">
-                                                    <div className="mb-3 text-start">
-                                                        <label htmlFor="brand_all" className="form-label">
-                                                            Hãng xe: <span className="text_red me-3">*</span>
-                                                        </label>
-                                                        <select
-                                                            className="form-select"
-                                                            name="brand_all"
-                                                            id="brand_all"
-                                                            aria-label=""
-                                                        >
-
-                                                            <option value="">
-                                                                name brand
-                                                            </option>
-                                                        </select>
-                                                        <div id="brand-error" className="form-text text_red" />
-                                                    </div>
-                                                    <div className="mb-3 text-start">
-                                                        <label htmlFor="name_car" className="form-label">
-                                                            Tên xe: <span className="text_red me-3">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            id="name_car"
-                                                            defaultValue="null"
-                                                            name="name_car"
-                                                        />
-                                                        <div
-                                                            id="namecar-error"
-                                                            className="form-text text_red"
-                                                        />
-                                                    </div>
-                                                    <div className="mb-3 text-start">
-                                                        <label htmlFor="license" className="form-label">
-                                                            Biển số xe: <span className="text_red me-3">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="text"
-                                                            className="form-control"
-                                                            id="license"
-                                                            defaultValue="null"
-                                                            name="license"
-                                                        />
-                                                        <div
-                                                            id="license-error"
-                                                            className="form-text text_red"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="mb-3 text-start">
-                                                <label htmlFor="service" className="form-label">
-                                                    Dịch vụ: <span className="text_red">*</span>
-                                                </label>
-                                                <select
-                                                    id="choices-multiple-remove-button-service"
-                                                    className="form-select"
-                                                    name="service"
-                                                    placeholder="Chọn các dịch vụ bạn có"
-                                                >
-                                                    <option value="">
-                                                        service name
-                                                    </option>
-                                                </select>
-                                                <div id="service-error" className="form-text text_red" />
-                                            </div>
-                                            <div className="mb-3 text-start">
-                                                <div className="row">
-                                                    <div className="col-6">
-                                                        <label htmlFor="time" className="form-label">
-                                                            Giờ: <span className="text_red">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="time"
-                                                            className="form-control"
-                                                            id="time"
-                                                            name="time"
-                                                        />
-                                                        <div id="time-error" className="form-text text_red" />
-                                                    </div>
-                                                    <div className="col-6">
-                                                        <label htmlFor="date" className="form-label">
-                                                            Ngày: <span className="text_red">*</span>
-                                                        </label>
-                                                        <input
-                                                            type="date"
-                                                            className="form-control"
-                                                            id="date"
-                                                            name="date"
-                                                            min=""
-                                                            max="30-12-2222"
-                                                        />
-                                                        <div id="date-error" className="form-text text_red" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="mb-3 d-flex align-items-center justify-content-center">
-                                                <button className="btn btn-primary" type="submit">
-                                                    Đặt lịch
-                                                </button>
-                                            </div>
-                                            {/* <div className="text-center" style={{ height: 100 }}>
-                                                <p className="mb-3 font-weight-bold text_red">
-                                                    Bạn cần đăng nhập để tiếp tục!
-                                                </p>
-                                                <div className="d-flex align-items-center justify-content-center">
-                                                    <a href="{{ url('/login') }}" className="">
-                                                        <button className="btn btn-primary">Đăng nhập</button>
-                                                    </a>
-                                                </div>
-                                            </div> */}
-                                            {/* Column */}
-                                        </form>
+                                        </div>
                                     </div>
-
-                                    <div className="modal-footer">
-                                        <button
-                                            type="button"
-                                            className="btn btn-secondary"
-                                            data-bs-dismiss="modal"
+                                    <div className="mb-3 text-start">
+                                        <label htmlFor="service" className="form-label">
+                                            Dịch vụ: <span className="text_red">*</span>
+                                        </label>
+                                        <select
+                                            id="choices-multiple-remove-button-service"
+                                            className="form-select"
+                                            name="service"
+                                            placeholder="Chọn các dịch vụ bạn có"
+                                            value={user.service}
+                                            onChange={handleInputChange(setUser)}
                                         >
-                                            Close
-                                        </button>
-                                        <button type="button" className="btn btn-primary">
-                                            Understood
+                                        <option value={0} id="dis-0" disabled="" selected="">
+                                                    dịch vụ
+                                        </option>
+                                        {services.map((service) => (
+                                            <option key={service.id} value={service.id}>
+                                                {service.name}
+                                            </option>
+                                            ))}                                               
+                                        </select>
+                                        <div id="service-error" className="form-text text_red" />
+                                    </div>
+                                    <div className="mb-3 text-start">
+                                        <div className="row">
+                                            <div className="col-6">
+                                                <label htmlFor="time" className="form-label">
+                                                    Giờ: <span className="text_red">*</span>
+                                                </label>
+                                                <input
+                                                    type="time"
+                                                    className="form-control"
+                                                    id="time"
+                                                    name="time"
+                                                    value={user.time}
+                                                    onChange={handleInputChange(setUser)}
+                                                />
+                                                <div id="time-error" className="form-text text_red" />
+                                            </div>
+                                            <div className="col-6">
+                                                <label htmlFor="date" className="form-label">
+                                                    Ngày: <span className="text_red">*</span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    className="form-control"
+                                                    id="date"
+                                                    name="date"
+                                                    min=""
+                                                    max="30-12-2222"
+                                                    value={user.date}
+                                                    onChange={handleInputChange(setUser)}
+                                                />
+                                                <div id="date-error" className="form-text text_red" />
+                                            </div>
+                                        </div>
+                                        {error && <div className="text_red">{error}</div>}
+                                    </div>
+                                    <div className="mb-3 d-flex align-items-center justify-content-center">
+                                        <button className="btn btn-primary" type="submit">
+                                            Đặt lịch
                                         </button>
                                     </div>
-                                </div>
+                                    {/* <div className="text-center" style={{ height: 100 }}>
+                                        <p className="mb-3 font-weight-bold text_red">
+                                            Bạn cần đăng nhập để tiếp tục!
+                                        </p>
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <a href="{{ url('/login') }}" className="">
+                                                <button className="btn btn-primary">Đăng nhập</button>
+                                            </a>
+                                        </div>
+                                    </div> */}
+                                    {/* Column */}
+                                </form>
                             </div>
-                        </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowModal(false)}
+
+                                >
+                                    Close
+                                </button>
+                                <button type="button" className="btn btn-primary">
+                                    Understood
+                                </button>
+                            </div>
+                       </Dialog>
                     </div>
                 </div>
             </div>
@@ -396,41 +620,34 @@ const GarageDetail = () => {
                     </div>
                     <div className="row g-2">
                         {/* foreach service lít */}
-                        <div
-                            className="col-lg-6 col-sm-12 col-12 wow fadeInUp"
-                            data-wow-delay="0.1s"
-                        >
-                            <div className="cat-item d-block bg-light text-center rounded p-3">
-                                <div
-                                    className="rounded p-3"
-                                    style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
+                        {serviceGarage.map((service) => (
+                            <div
+                                key={service.id}
+                                className="col-lg-6 col-sm-6 col-12 wow fadeInUp"
+                                data-wow-delay="0.1s"
+                            >
+                                <a
+                                    className="cat-item d-block bg-light text-center rounded p-3"
+                                    href=""
                                 >
-                                    <div className="row">
-                                        <div className="col-6">
-                                            <div className="icon mb-3">
-                                                <img
-                                                    className="img-fluid img-card1"
-                                                    src=""
-                                                    alt="Icon"
-                                                />
-                                            </div>
+                                    <div
+                                        className="rounded p-3"
+                                        style={{ border: "1px dashed rgba(185, 46, 0, 0.3)" }}
+                                    >
+                                        <div className="icon mb-3">
+                                            <img
+                                                className="img-fluid img-card1"
+                                                src={service.image}
+                                                alt="Icon"
+                                            />
                                         </div>
-                                        <div className="col-6 py-5">
-                                            <h5 className="mt-3">
-                                                name
-                                            </h5>
-
-                                            <p style={{ color: "#000" }}>
-                                                description
-                                            </p>
-                                            <a href="" className="">
-                                                <button className="btn btn-danger mt-3">Chi tiết</button>
-                                            </a>
-                                        </div>
+                                        <h5>{service.name}</h5>
+                                        <span>{service.description}</span>
                                     </div>
-                                </div>
+                                </a>
                             </div>
-                        </div>
+                        ))}
+
                     </div>
                 </div>
             </div>
@@ -446,37 +663,40 @@ const GarageDetail = () => {
                         <h3 className="mb-3">Hãng xe sửa chữa</h3>
                     </div>
                     <div className="row g-2">
-                        {/* foreach brand list */}
+                    {brands.map((brand) => (
                         <div
-                            className="col-lg-2 col-md-3 col-sm-4 col-6 wow brand_1"
-                            data-wow-delay="0.1s"
+                        className="col-lg-2 col-md-3 col-sm-4 col-6 wow brand_1"
+                        data-wow-delay="0.1s"
                         >
-                            <div className="row g-0">
-                                <div className="col-4">
-                                    <div className="icon">
-                                        <img
-                                            className="img-fluid"
-                                            style={{ width: 40, height: 40 }}
-                                            src=""
-                                            alt="Icon"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="col-8 py-4">
-                                    <p className="">
-                                        brand name
-                                    </p>
+                        <div className="row g-0">
+                            <div className="col-4">
+                                <div className="icon">
+                                    <img
+                                        className="img-fluid"
+                                        style={{ width: 40, height: 40 }}
+                                        src=""
+                                        alt="Icon"
+                                    />
                                 </div>
                             </div>
+                            <div className="col-8 py-4">
+                                <p className="">
+                                    {brand.name}
+                                </p>
+                            </div>
                         </div>
+                        </div>
+                    ))}
+                        {/* foreach brand list */}
+                       
                     </div>
-                    <p
+                    {/* <p
                         className="text_red text-center"
                         style={{ cursor: "pointer" }}
                         id="show_brand"
                     >
                         Xem thêm hãng xe
-                    </p>
+                    </p> */}
                 </div>
             </div>
             {/* end brand */}

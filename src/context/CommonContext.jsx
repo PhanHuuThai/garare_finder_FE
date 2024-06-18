@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import config from "../config";
+import axios from "axios";
 
 export const CommonContext = createContext()
 
@@ -13,23 +15,74 @@ const CommonProvider = ({ children }) => {
 }
 
 const useCommonState = () => {
-    const [service, setService] = useState(null)
-    const [brand, setBrand] = useState(null)
-  
-    const fetchServices = (newService) => {
-      setService(newService);
+    const [services, setService] = useState([])
+    const [vehicles, setVehicles] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [error, setError] = useState(null);
+
+    
+    const fetchServices = async () => {
+      try {
+        const apiUrl = `${config.apiBaseUrl}/client/about/get-all-service`;
+        const response = await axios.get(apiUrl);
+        let data = response.data;
+        if (!data.success) {
+            setError(data.message)
+        }
+        setService(data.data);
+      } catch (error) {
+        setError(error.message);
+      }
     };
-  
-    const updateService = () => {
-      setService(null)
-    };
+
+  useEffect(() => {
+      fetchServices()
+  }, [])
+    
+
+  const fetchVehicles = async () => {
+    try {
+      const apiUrl = `${config.apiBaseUrl}/client/about/get-all-brand`;
+      const response = await axios.get(apiUrl);
+      let data = response.data;
+      if (!data.success) {
+          setError(data.message)
+      }
+      setVehicles(data.data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchVehicles()
+  }, [])   
+
+  const fetchCities = async () => {
+    const apiUrl = `${config.apiBaseUrl}/client/get-all-provinces`;
+    try {
+      const response = await axios.get(apiUrl);
+      let data = response.data;
+      if (!data.success) {
+          setError(data.message)
+      }
+      setCities(data.data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+    
+  useEffect(() => {
+    fetchCities()
+  }, [])
     
     return {
-        service,
+        services,
         fetchServices: fetchServices,
-        updateService,
-        brand,
-        setBrand,
+        vehicles,
+        fetchVehicles: fetchVehicles,
+        cities,
+        fetchCities: fetchCities
     }
 }
 

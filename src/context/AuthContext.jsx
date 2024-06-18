@@ -21,12 +21,13 @@ export const AuthProvider = ({ children }) => {
         }
     }, []);
 
-    const login = (token) => {
-        localStorage.setItem('token', token);
+    const login = (data) => {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify((data.data.data)));
         //const decoded = jwtDecode(token);
         setAuth({
             isAuthenticated: true,
-            user: token
+            user: data.data.data
         })
     }
 
