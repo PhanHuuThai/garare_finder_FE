@@ -59,7 +59,7 @@ const GarageList = () => {
 
     return (
         
-        <div className="container-xxl bg-white p-0">
+        <div className="client  container-xxl bg-white p-0">
             <div style={{ position: 'relative' }}>
                     {loading && (
                         <div style={loadingOverlayStyle}>
@@ -72,20 +72,20 @@ const GarageList = () => {
                         </div>
                     )}</div>
             {/* Header Start */}
-            <div className="container-fluid header bg-white p-0">
-                <div className="row g-0 align-items-center flex-column-reverse flex-md-row">
-                    <div className="col-md-6 p-5 mt-lg-5 mt-3">
-                        <h1 className="display-5 animated fadeIn mb-4">Danh sách Garage</h1>
+            <div className="client  container-fluid header bg-white p-0">
+                <div className="client  row g-0 align-items-center flex-column-reverse flex-md-row">
+                    <div className="client  col-md-6 p-5 mt-lg-5 mt-3">
+                        <h1 className="client  display-5 animated fadeIn mb-4">Danh sách Garage</h1>
                         <nav aria-label="breadcrumb animated fadeIn">
-                            <ol className="breadcrumb text-uppercase">
-                                <li className="breadcrumb-item">
+                            <ol className="client  breadcrumb text-uppercase">
+                                <li className="client  breadcrumb-item">
                                     <a href="">Trang chủ</a>
                                 </li>
-                                <li className="breadcrumb-item">
+                                <li className="client  breadcrumb-item">
                                     <a href="#">Pages</a>
                                 </li>
                                 <li
-                                    className="breadcrumb-item text-body active"
+                                    className="client  breadcrumb-item text-body active"
                                     aria-current="page"
                                 >
                                     Danh sách garage
@@ -94,9 +94,9 @@ const GarageList = () => {
                         </nav>
                     </div>
                     
-                    <div className="col-md-6 animated fadeIn" style={{ height: 390 }}>
+                    <div className="client  col-md-6 animated fadeIn" style={{ height: 390 }}>
                         <img
-                            className="imgHeaderPage"
+                            className="client  imgHeaderPage"
                             style={{ height: "100% !important", width: "100% !important" }}
                             src="https://danangaz.com/wp-content/uploads/2019/02/sua-chua-o-to-da-nang-04-min.jpg"
                             alt=""
@@ -111,18 +111,18 @@ const GarageList = () => {
             {/* Search End */}
             {/* Property List Start */}
             <div
-                className="container-xxl py-4"
+                className="client  container-xxl py-4"
                 id="garage_list"
                 style={{ minHeight: 720 }}
             >
-                <div className="container">
-                    <div className="row g-0 gx-5 align-items-end">
-                        <div className="col-lg-12">
+                <div className="client  container">
+                    <div className="client  row g-0 gx-5 align-items-end">
+                        <div className="client  col-lg-12">
                             <div
-                                className="text-center mx-auto mb-5 wow slideInLeft"
+                                className="client  text-center mx-auto mb-5 wow slideInLeft"
                                 data-wow-delay="0.1s"
                             >
-                                <h1 className="mb-3">Danh sách garage</h1>
+                                <h1 className="client  mb-3">Danh sách garage</h1>
                                 <p>
                                     Danh sách Garage đề xuất sau đây có thể bạn sẽ cần, hãy tiếp tục
                                     tìm kiếm nếu chưa phù hợp!.
@@ -130,68 +130,68 @@ const GarageList = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="text-center d-none" id="spin">
+                    <div className="client  text-center d-none" id="spin">
                         <div
-                            className="spinner-grow text-danger me-2"
+                            className="client  spinner-grow text-danger me-2"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                         <div
-                            className="spinner-grow text-danger me-2"
+                            className="client  spinner-grow text-danger me-2"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                         <div
-                            className="spinner-grow text-danger me-2"
+                            className="client  spinner-grow text-danger me-2"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                         <div
-                            className="spinner-grow text-danger me-2"
+                            className="client  spinner-grow text-danger me-2"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                         <div
-                            className="spinner-grow text-danger me-2"
+                            className="client  spinner-grow text-danger me-2"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                         <div
-                            className="spinner-grow text-danger"
+                            className="client  spinner-grow text-danger"
                             style={{ height: 20, width: 20 }}
                             role="status"
                         >
-                            <span className="sr-only">Loading...</span>
+                            <span className="client  sr-only">Loading...</span>
                         </div>
                     </div>
-                    <div className="tab-content" id="tab-content">
-                        <div id="tab-1" className="tab-pane fade show p-0 active">
-                            <div className="row g-4">
+                    <div className="client  tab-content" id="tab-content">
+                        <div id="tab-1" className="client  tab-pane fade show p-0 active">
+                            <div className="client  row g-4">
                                 {currentGarages.map((garage) => (
-                                    <div key={garage.id} className="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                                    <div className="property-item rounded overflow-hidden">
-                                        <div className="position-relative overflow-hidden">
+                                    <div key={garage.id} className="client  col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                    <div className="client  property-item rounded overflow-hidden">
+                                        <div className="client  position-relative overflow-hidden">
                                         <a href="">
                                             <img
-                                            className="img-fluid"
+                                            className="client  img-fluid"
                                             src={require('../../assets/images/1_1701764702_t_1.webp')}
                                             alt={garage.name}
                                             />
                                         </a>
-                                        <div className="bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
+                                        <div className="client  bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-2">
                                             <form id="add_favourite" action="" method="POST">
                                             <button
-                                                className="text_red"
+                                                className="client  text_red"
                                                 type="submit"
                                                 style={{
                                                 backgroundColor: "transparent",
@@ -199,17 +199,17 @@ const GarageList = () => {
                                                 width: 39
                                                 }}
                                             >
-                                                <i className="bi bi-heart font-weight-bold" />
+                                                <i className="client  bi bi-heart font-weight-bold" />
                                             </button>
                                             </form>
                                         </div>
                                         </div>
-                                        <div className="p-4 pb-0 text-start">
-                                        <a className="d-block h5 mb-2" href="" style={{ height: 48 }}>
+                                        <div className="client  p-4 pb-0 text-start">
+                                        <a className="client  d-block h5 mb-2" href="" style={{ height: 48 }}>
                                             {garage.name}
                                         </a>
                                         <p
-                                            className="mt-2"
+                                            className="client  mt-2"
                                             style={{
                                             height: 48,
                                             overflow: "hidden",
@@ -218,37 +218,37 @@ const GarageList = () => {
                                             WebkitBoxOrient: "vertical"
                                             }}
                                         >
-                                            <i className="fa fa-map-marker-alt text_red me-2" />
+                                            <i className="client  fa fa-map-marker-alt text_red me-2" />
                                             {garage.address_detail}
                                         </p>
                                         </div>
-                                        <div className="d-flex">
-                                        <small className="flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                        <small className="flex-fill text-start pb-2 ms-5">
-                                            <i className="bi bi-star-fill text_red " />
-                                            <i className="bi bi-star-fill text_red" />
-                                            <i className="bi bi-star-fill text_red" />
-                                            <i className="bi bi-star-fill text_red" />
-                                            <i className="bi bi-star-fill text_red me-1" /> 5
+                                        <div className="client  d-flex">
+                                        <small className="client  flex-fill text-start mx-4 me-5">Đánh giá</small>
+                                        <small className="client  flex-fill text-start pb-2 ms-5">
+                                            <i className="client  bi bi-star-fill text_red " />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red me-1" /> 5
                                         </small>
                                         </div>
-                                        <div className="d-flex border-top mt-2">
-                                        <small className="flex-fill text-start border-end py-2 mx-4">
-                                            <i className="far fa-calendar-plus text_red me-3" />
-                                            <a href={`/garage-detail/${garage.id}`} className="text_red">
+                                        <div className="client  d-flex border-top mt-2">
+                                        <small className="client  flex-fill text-start border-end py-2 mx-4">
+                                            <i className="client  far fa-calendar-plus text_red me-3" />
+                                            <a href={`/garage-detail/${garage.id}`} className="client  text_red">
                                             Đặt lịch ngay
                                             </a>
                                         </small>
-                                        <small className="flex-fill text-start py-2">
-                                            <i className="bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                            <form action="" className="d-inline-block" method="POST">
+                                        <small className="client  flex-fill text-start py-2">
+                                            <i className="client  bi bi-chat-dots-fill text_red me-2 d-inline-block" />
+                                            <form action="" className="client  d-inline-block" method="POST">
                                             <input
                                                 type="hidden"
                                                 name="id_garage"
                                                 value={garage.id}
                                             />
                                             <button
-                                                className="text_red"
+                                                className="client  text_red"
                                                 type="submit"
                                                 style={{ backgroundColor: "transparent", border: "none" }}
                                             >
@@ -261,11 +261,11 @@ const GarageList = () => {
                                     </div>
                                 ))}
                                 <div
-                                    className="col-12 text-center wow fadeInUp"
+                                    className="client  col-12 text-center wow fadeInUp"
                                     data-wow-delay="0.1s"
                                 >
-                                    <div className="d-flex justify-content-center my-4">
-                                        <div className="Page navigation example">
+                                    <div className="client  d-flex justify-content-center my-4">
+                                        <div className="client  Page navigation example">
                                             <div >
                                             <ReactPaginate
                                                 previousLabel={'Trước'}

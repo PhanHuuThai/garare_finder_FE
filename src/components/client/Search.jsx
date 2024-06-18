@@ -47,30 +47,30 @@ const Search = ({ onSearchResults }) => {
 
     return (
         <div
-            className="container-fluid mb-4 wow fadeIn"
+            className="client  container-fluid mb-4 wow fadeIn"
             data-wow-delay="0.1s"
             style={{ padding: 35, background: "#ffecec" }}
         >
-            <div className="container">
+            <div className="client container">
                 <div id="garage_search">
                     <input type="hidden" defaultValue={2} name="action" />
-                    <div className="row g-2">
-                        <div className="col-md-10">
-                            <div className="row g-2">
-                                <div className="col-md-3">
+                    <div className="client  row g-2">
+                        <div className="client  col-md-10">
+                            <div className="client  row g-2">
+                                <div className="client  col-md-3">
                                     <input
                                         type="text"
                                         name="name"
-                                        className="form-control border-0 py-3"
+                                        className="client  form-control border-0 py-3"
                                         placeholder="Tên garage"
                                         value={searchData.name}
                                         onChange={handleInputChange}
 
                                     />
                                 </div>
-                                <div className="col-md-3">
+                                <div className="client col-md-3">
                                     <select 
-                                      className="form-select border-0 py-3" 
+                                      className="client form-select border-0 py-3" 
                                       name="province"
                                       value={searchData.province}
                                       onChange={handleInputChange}
@@ -85,9 +85,9 @@ const Search = ({ onSearchResults }) => {
                                         ))}
                                     </select>
                                 </div>
-                                <div className="col-md-3">
+                                <div className="client col-md-3">
                                     <select 
-                                      className="form-select border-0 py-3" 
+                                      className="client form-select border-0 py-3" 
                                       name="service"
                                       value={searchData.service}
                                       onChange={handleInputChange}
@@ -102,8 +102,8 @@ const Search = ({ onSearchResults }) => {
                                         ))}
                                     </select>
                                 </div>
-                                <div className="col-md-3">
-                                    <select className="form-select border-0 py-3"
+                                <div className="client col-md-3">
+                                    <select className="client form-select border-0 py-3"
                                       name="brand"
                                       value={searchData.brand}
                                       onChange={handleInputChange}
@@ -120,8 +120,8 @@ const Search = ({ onSearchResults }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-2">
-                            <button onClick={handleSearch} className="btn btn-dark border-0 w-100 py-3">
+                        <div className="client col-md-2">
+                            <button onClick={handleSearch} className="client btn btn-dark border-0 w-100 py-3">
                                 Tìm kiếm
                             </button>
                         </div>

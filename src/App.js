@@ -12,6 +12,16 @@ import PrivateRoute from './components/PrivateRoute'
 import Profile from './pages/client/Profile'
 import GarageList from './pages/client/GarageList'
 import GarageDetail from './pages/client/GarageDetail'
+import LayoutG from './pages/garagre-owner/LayoutG'
+import ServicesGarage from './pages/garagre-owner/ServicesGarage'
+import BrandsGarage from './pages/garagre-owner/BrandsGarage'
+import GarageInfo from './pages/garagre-owner/GarageInfo'
+import DetailImage from './pages/garagre-owner/DetailImage'
+import StaffList from './pages/garagre-owner/StaffList'
+import GarageOrder from './pages/garagre-owner/GarageOrder'
+import GarageOrderHistory from './pages/garagre-owner/GarageOrderHistory'
+import StaffInfo from './pages/garagre-owner/StaffInfo'
+import ChangeStaffPass from './pages/garagre-owner/ChangeStaffPass'
 
 function App() {
   return (
@@ -37,7 +47,22 @@ function App() {
               }
             />
           </Route>
+          <Route path="garage"
+            element={<PrivateRoute>
+              <LayoutG />
+            </PrivateRoute>}>
+            <Route index element={<GarageInfo />} />
+            <Route path="services" element={<ServicesGarage />} />
+            <Route path="brands" element={<BrandsGarage />} />
+            <Route path="garage" element={<GarageInfo />} />
+            <Route path="image-detail" element={<DetailImage />} />
+            <Route path="staffs" element={<StaffList />} />
+            <Route path="orders" element={<GarageOrder />} />
+            <Route path="order-history" element={<GarageOrderHistory />} />
+            <Route path="staff-info" element={<StaffInfo />} />
+            <Route path="staff-change-pass" element={<ChangeStaffPass />} />
 
+          </Route>
         </Routes>
       </BrowserRouter>
     </div>
