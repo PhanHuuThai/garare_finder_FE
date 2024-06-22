@@ -10,7 +10,7 @@ import Header from '../../components/garage-owner/Header.jsx';
 import Footer from '../../components/garage-owner/Footer.jsx';
 import LeftSlide from '../../components/garage-owner/LeftSilde.jsx';
 
-const LayoutG = (props) => {
+const LayoutAD = (props) => {
     const location = useLocation()
 
     useEffect(() => {
@@ -116,4 +116,4 @@ const LayoutG = (props) => {
     )
 }
 
-export default LayoutG
+export default LayoutAD
