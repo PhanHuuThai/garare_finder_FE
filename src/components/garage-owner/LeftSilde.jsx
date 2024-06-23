@@ -19,7 +19,7 @@ const LeftSlide = () => {
                                 <span className="hide-menu">Thông tin Garage</span>
                             </Link>
                         </li>
-                        <li className="sidebar-item">
+                        {/* <li className="sidebar-item">
                             <Link
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
                                 to="/garage/image-detail"
@@ -28,7 +28,7 @@ const LeftSlide = () => {
                                 <i className="fas fa-images" aria-hidden="true" />
                                 <span className="hide-menu">Thư viện ảnh</span>
                             </Link>
-                        </li>
+                        </li> */}
                         <li className="sidebar-item">
                             <Link
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
@@ -88,7 +88,7 @@ const LeftSlide = () => {
                                 <span className="hide-menu">Lịch sử lịch đặt</span>
                             </Link>
                         </li>
-                        <li className="sidebar-item">
+                        {/* <li className="sidebar-item">
                             <Link
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
                                 to="/garage/staffs"
@@ -97,7 +97,7 @@ const LeftSlide = () => {
                                 <i className="fas fa-users" aria-hidden="true" />
                                 <span className="hide-menu">Nhân viên</span>
                             </Link>
-                        </li>
+                        </li> */}
                         <li className="sidebar-item">
                             <Link
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
@@ -118,7 +118,7 @@ const LeftSlide = () => {
                                 <span className="hide-menu">Thay đổi mật khẩu</span>
                             </Link>
                         </li>
-
+{/* 
                         <li className="sidebar-item">
                             <a
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
@@ -128,7 +128,7 @@ const LeftSlide = () => {
                                 <i className="fab fa-facebook-messenger" aria-hidden="true" />
                                 <span className="hide-menu">Tin nhắn</span>
                             </a>
-                        </li>
+                        </li> */}
                         <li className="sidebar-item">
                             <a
                                 className="sidebar-link waves-effect waves-dark sidebar-link"

@@ -1,6 +1,136 @@
+import axios from "axios";
+import { useEffect, useState } from "react";
+import config from "../../config";
+import ReactLoading from 'react-loading';
+
 const StaffInfo = () => {
+    const [isUpdate, setIsUpdate] = useState(0)
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [errorUpdate, setErrorUpdate] = useState('');
+
+    const [user, setUser] = useState({
+        email: '',
+        id: '',
+        image: '',
+        name: '',
+        phone: '',
+    });
+
+    useEffect(() => {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            setUser({
+                email: storedUser.email || '',
+                id: storedUser.id || '',
+                image: storedUser.image || '',
+                name: storedUser.name || '',
+                phone: storedUser.phone || '',
+            });
+        }
+    }, [isUpdate]);
+
+    const [imageFile, setImageFile] = useState(null);
+
+    const handleInputChange = (setter) => (e) => {
+        const { name, value } = e.target;
+        setter(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
+    const handleImageChange = (setter) => (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setter(prevUser => ({
+                ...prevUser,
+                image: imageUrl
+            }));
+        }
+
+        setImageFile(e.target.files[0]);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!user.phone || !user.name || !user.email) {
+            setErrorUpdate('Vui lòng điền đủ thông tin');
+            return;
+          }
+          if(!validateEmail(user.email)) {
+            setErrorUpdate('định dạng email ko đúng');
+            return;
+          }
+        const formData = new FormData();
+        formData.append('name', user.name);
+        formData.append('phone', user.phone);
+        formData.append('email', user.email);
+        if (imageFile) {
+            formData.append('image', imageFile);
+        }
+
+        const token = localStorage.getItem('token');
+        try {
+            
+            setLoading(true); 
+            const response = await axios.post(`${config.apiBaseUrl}/client/profile/update`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success){
+                localStorage.setItem('user', JSON.stringify((response.data.data)));
+                setIsUpdate(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
+                setErrorUpdate();
+                setImageFile(null)
+            }
+            
+            console.log(response.data);
+            // Handle success (e.g., show a success message or update the UI)
+        } catch (error) {
+            console.error('There was an error updating the user!', error);
+            // Handle error (e.g., show an error message)
+        } finally {
+            setLoading(false); // Kết thúc loading
+        }
+    }
+
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+    };
+    
+
     return (
         <div className="page-wrapper text-start">
+            {error && <p style={{ color: 'red' }}>{error}</p>}
+            <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
             <div className="page-breadcrumb bg-white">
                 <div className="row align-items-center">
                     <div className="col-lg-3 col-md-4 col-sm-4 col-xs-12">
@@ -23,9 +153,7 @@ const StaffInfo = () => {
             <div className="container-fluid">
                 <form
                     className="form-horizontal form-material"
-                    action=""
-                    method="POST"
-                    encType="multipart/form-data"
+                    onSubmit={handleSubmit}
                 >
                     <div className="row">
                         {/* Column */}
@@ -38,7 +166,7 @@ const StaffInfo = () => {
                                         alt="user"
                                         id="img_info"
                                         className="img_info"
-                                        src="{{ !empty(Auth::guard('employee')->user()->image) ? asset('uploads/garage/employee/1_' . Auth::guard('employee')->user()->image) : asset('assets/img/default-image.webp') }}"
+                                        src={user.image}
                                     />
                                 </div>
                                 <div className="user-btm-box mt-5 d-md-flex">
@@ -49,15 +177,13 @@ const StaffInfo = () => {
                                         <input
                                             type="file"
                                             className="form-control"
-                                            name="avatar"
+                                            name="image"
                                             id="image_thumnail"
                                             accept=".jpg, .jpeg, .png, .webp"
+                                            onChange={handleImageChange(setUser)}
                                         />
                                     </div>
                                 </div>
-                                <p style={{ color: "red", marginTop: 10 }}>
-                                     $message 
-                                </p>
                             </div>
                         </div>
                         {/* Column */}
@@ -66,19 +192,17 @@ const StaffInfo = () => {
                             <div className="card">
                                 <div className="card-body">
                                     <div className="form-group mb-3">
-                                        <label className="col-md-12 p-0">Tên nhân viên</label>
+                                        <label className="col-md-12 p-0">Tên chủ garage</label>
                                         <div className="col-md-12 border-bottom p-0 mb-2">
                                             <input
                                                 type="text"
                                                 placeholder="Tên Garage"
                                                 className="form-control p-0 border-0"
                                                 name="name"
-                                                defaultValue="{{ Auth::guard('employee')->user()->name }}"
+                                                value={user.name}
+                                                onChange={handleInputChange(setUser)}
                                             />
                                         </div>
-                                        <span style={{ color: "red" }}>
-                                            $message 
-                                        </span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <label className="col-md-12 p-0">Email (Tên đăng nhập)</label>
@@ -89,12 +213,10 @@ const StaffInfo = () => {
                                                 className="form-control p-0 border-0"
                                                 name="email"
                                                 disabled=""
-                                                defaultValue="{{ Auth::guard('employee')->user()->email }}"
+                                                value={user.email}
+                                                onChange={handleInputChange(setUser)}
                                             />
                                         </div>
-                                        <span style={{ color: "red" }}>
-                                            $message
-                                        </span>
                                     </div>
                                     <div className="form-group mb-3">
                                         <label className="col-md-12 p-0">Số điện thoại</label>
@@ -104,33 +226,12 @@ const StaffInfo = () => {
                                                 placeholder="Số điện thoại"
                                                 className="form-control p-0 border-0"
                                                 name="phone"
-                                                defaultValue="{{ Auth::guard('employee')->user()->phone }}"
+                                                value={user.phone}
+                                                onChange={handleInputChange(setUser)}
                                             />
                                         </div>
-                                        <span style={{ color: "red" }}>
-                                            $message 
-                                        </span>
                                     </div>
-                                    <div className="form-group mb-3">
-                                        <label className="col-md-12 p-0">Giới tính</label>
-                                        <div className="col-md-12 border-bottom p-0 mb-2">
-                                            <select
-                                                className="form-select shadow-none p-0 border-0 form-control-line"
-                                                name="gender"
-                                                id=""
-                                                aria-label="Default select example"
-                                            >
-                                                
-                                                <option value={2}>Nữ</option>
-                                                <option value={1}>Nam</option>
-                                                
-                                            </select>
-                                        </div>
-                                        <span style={{ color: "red", marginTop: 10 }}>
-                                            $message 
-                                        </span>
-
-                                    </div>
+                                    {errorUpdate && <p style={{ color: 'red' }}>{errorUpdate}</p>}
                                     <div className="form-group mb-4">
                                         <div className="col-sm-12">
                                             <button className="btn btn-primary">

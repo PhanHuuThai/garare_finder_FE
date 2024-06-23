@@ -24,6 +24,10 @@ const Profile = () => {
     const [newPassword, setNewPassword] = useState('');
     const [errorChangePass, setErrorChangePass] = useState('');
     const [confirmPass, setConfirmPass] = useState('')
+    const [orders, setOrders] = useState([])
+    const [orderComplete, setOrderComplete] = useState([])
+    const [filteredOrders, setFilteredOrders] = useState([]);
+    const [currentTab, setCurrentTab] = useState('all');
 
     const [user, setUser] = useState({
         address: '',
@@ -202,6 +206,7 @@ const Profile = () => {
         e.preventDefault();
         const formData = new FormData();
         formData.append('name', user.name);
+        formData.append('email', user.email);
         formData.append('phone', user.phone);
         formData.append('nest', user.address);
         formData.append('province', user.id_province)
@@ -348,6 +353,101 @@ const Profile = () => {
             setLoading(false); // Kết thúc loading
         }
     }
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                setLoading(true);
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`${config.apiBaseUrl}/client/order`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+                if (response.data.success) {
+                    setOrders(response.data.data);
+                    setFilteredOrders(response.data.data);
+                } else {
+                    setError(response.data.message);
+                }
+            } catch (error) {
+                setError('Có lỗi xảy ra khi lấy thông tin đơn hàng của garage');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrders();
+    }, [isUpdate]);
+
+    const updateOrderStatus = async (orderId, status) => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.put(`${config.apiBaseUrl}/garage/order/update-status/${orderId}`,
+                { status },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            if (response.data.success) {
+                setIsUpdate(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
+                setError('')
+            } else {
+                setError(response.data.message);
+            }
+            setLoading(false);
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            throw error;
+        }
+        finally {
+            setLoading(false);
+        }
+    };
+
+    const filterOrders = (status) => {
+        let filtered;
+        if (status === 'all') {
+            filtered = orders;
+        } else {
+            filtered = orders.filter(order => order.status == status);
+        }
+        setFilteredOrders(filtered);
+    };
+
+    const handleTabClick = (status) => {
+        setCurrentTab(status);
+        filterOrders(status);
+    };
+
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                setLoading(true);
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`${config.apiBaseUrl}/client/order/get-complete-order/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+                if (response.data.success) {
+                    setOrderComplete(response.data.data);
+                } else {
+                    setError(response.data.message);
+                }
+            } catch (error) {
+                setError('Có lỗi xảy ra khi lấy thông tin đơn hàng của garage');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchOrders();
+    }, []);
 
     const loadingOverlayStyle = {
         position: 'fixed',
@@ -650,6 +750,7 @@ const Profile = () => {
                                                     className="client form-control"
                                                     aria-describedby="passwordHelpInline"
                                                     value={user.email || ''}
+                                                    onChange={handleInputChange(setUser)}
                                                 />
                                             </div>
                                         </div>
@@ -1111,78 +1212,91 @@ const Profile = () => {
                                 <div
                                     className="client btn btn-outline-secondary rounded-0 border border-dark"
                                     id="canceled"
+                                    onClick={() => handleTabClick(4)}
                                 >
                                     Đã hủy
                                 </div>
                                 <div
                                     className="client btn btn-outline-danger rounded-0 border border-dark border-right-0"
                                     id="refused"
+                                    onClick={() => handleTabClick(3)}
                                 >
                                     Đã từ chối
                                 </div>
                                 <div
                                     className="client btn btn-outline-success rounded-0 border border-dark border-right-0"
                                     id="confirmed"
+                                    onClick={() => handleTabClick(2)}
                                 >
                                     Đã xác nhận
                                 </div>
                                 <div
                                     className="client btn btn-outline-warning rounded-0 border border-dark border-left-0 border-right-0"
                                     id="waited"
+                                    onClick={() => handleTabClick(1)}
                                 >
                                     Chờ xác nhận
                                 </div>
                                 <div
                                     className="client btn btn-outline-info rounded-0 border border-dark border-right-0"
                                     id="all_order"
+                                    onClick={() => handleTabClick('all')}
                                 >
                                     Tất cả
                                 </div>
                             </div>
-                            <div className="client mt-4" id="card_order">
-                                <div className="client row g-3 mt-3">
+                            <div className="client text-start mt-4" id="card_order">
+                                {filteredOrders.map((order) => (
+                                    <div className="client row g-3 mt-3">
                                     <div className="client col-lg-5 col-sm-12" style={{ height: 216 }}>
                                         <img
                                             style={{ height: "100%", width: "100%" }}
                                             className="client img-fluid rounded-3"
-                                            src=""
+                                            src={order.garage_img}
                                             alt=""
                                         />
                                     </div>
                                     <div className="client col-lg-7 col-sm-12" style={{ height: 216 }}>
                                         <div className="client d-block">
                                             <h6 className="client mb-3 d-inline-block float-start">
-
+                                                {order.garage_name}
                                             </h6>
                                             <div className="client mb-3 d-inline-block float-end">
                                                 {/* status cho xac nhan */}
-                                                <span className="client badge rounded-pill bg-warning font-bold">
-                                                    Chờ xác nhận
-                                                </span>
-                                                <input
-                                                    type="hidden"
-                                                    id="id_booking"
-                                                    defaultValue=""
-                                                />
+                                                {order.status == 1 && (
+                                                    <div>
+                                                        <span className="client badge rounded-pill bg-warning font-bold">
+                                                        Chờ xác nhận
+                                                    </span>
                                                 <span
                                                     id="cancel-booking"
                                                     className="client badge rounded-pill bg-danger font-bold"
                                                     role="button"
+                                                    onClick={() => updateOrderStatus(order.id, 4)}
                                                 >
                                                     Hủy đơn
-                                                </span>
-                                                {/* @elseif($item-&gt;status == 2) huy don */}
+                                                 </span>
+                                                    </div>
+                                                )}
+                                                
+                                                
+                                                {order.status == 2 && (
                                                 <span className="client badge rounded-pill bg-success font-bold">
                                                     Đã xác nhận
                                                 </span>
-                                                {/* @elseif($item-&gt;status == 3) */}
+                                                )}
+
+                                                {order.status == 3 && (
                                                 <span className="client badge rounded-pill bg-danger font-bold">
                                                     Đã từ chối
                                                 </span>
-                                                {/* @elseif($item-&gt;status == 4) */}
+                                                  )}
+
+                                               {order.status == 4 && (
                                                 <span className="client badge rounded-pill bg-danger font-bold">
                                                     Đã hủy
                                                 </span>
+                                                )}
                                             </div>
                                         </div>
                                         <div className="client float-start">
@@ -1190,44 +1304,45 @@ const Profile = () => {
                                                 <span style={{ width: 40 }}>
                                                     <i className="client bi bi-geo-alt-fill text_red me-2" />
                                                 </span>
-
+                                                {order.garage_address}
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
                                                     <i className="client fa fa-phone-alt text_red me-2" />
                                                 </span>
-
+                                                {order.garage_phone}
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
                                                     <i className="client bi bi-clock-fill text_red me-2" />
                                                 </span>
-                                                Giờ mở cửa - đóng cửa:
-
+                                                Giờ mở cửa: {order.time_open} - đóng cửa: {order.time_close}
                                             </p>
                                         </div>
                                         <div className="client float-start mt-1">
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Xe: </b>
+                                                    <b>Xe: {order.car_name}</b>
                                                 </span>
 
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Loại dịch vụ:</b>
+                                                    <b>Loại dịch vụ: {order.service_name}</b>
                                                 </span>
 
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Thời gian:</b>
+                                                    <b>Thời gian: {order.time}</b>
                                                 </span>
 
                                             </p>
                                         </div>
                                     </div>
                                 </div>
+                                ))}
+                                
                             </div>
                         </div>
                         {/* Lịch sử đặt */}
@@ -1237,20 +1352,21 @@ const Profile = () => {
                             role="tabpanel"
                             aria-labelledby="v-pills-history-tab"
                         >
-                            <div className="client " id="card_order">
-                                <div className="client row g-3 mt-5">
+                            <div className="client text-start mt-4" id="card_order">
+                                {orderComplete.map((order) => (
+                                    <div className="client row g-3 mt-5">
                                     <div className="client col-lg-5 col-sm-12" style={{ height: 216 }}>
                                         <img
                                             style={{ height: "100%", width: "100%" }}
                                             className="client img-fluid rounded-3"
-                                            src=""
+                                            src={order.garage_img}
                                             alt=""
                                         />
                                     </div>
                                     <div className="client col-lg-7 col-sm-12" style={{ height: 216 }}>
                                         <div className="client d-block">
                                             <h6 className="client mb-3 d-inline-block float-start">
-
+                                                {order.garage_name}
                                             </h6>
                                             <div className="client mb-3 d-inline-block float-end">
                                                 <span className="client badge rounded-pill bg-success font-bold">
@@ -1263,66 +1379,46 @@ const Profile = () => {
                                                 <span style={{ width: 40 }}>
                                                     <i className="client bi bi-geo-alt-fill text_red me-2" />
                                                 </span>
-
+                                                {order.garage_address}
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
                                                     <i className="client fa fa-phone-alt text_red me-2" />
                                                 </span>
-
+                                                {order.garage_phone}
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
                                                     <i className="client bi bi-clock-fill text_red me-2" />
                                                 </span>
-                                                Giờ mở cửa - đóng cửa:
-
+                                                Giờ mở cửa: {order.time_open} - đóng cửa: {order.time_close}
                                             </p>
                                         </div>
                                         <div className="client float-start mt-1">
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Xe:</b>
+                                                    <b>Xe: {order.car_name}</b>
                                                 </span>
 
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Dịch vụ:</b>
+                                                    <b>Dịch vụ: {order.service_name}</b>
                                                 </span>
 
                                             </p>
                                             <p style={{ fontSize: 14, margin: "0 0 9px 0" }}>
                                                 <span style={{ width: 40 }}>
-                                                    <b>Thời gian:</b>
+                                                    <b>Thời gian: {order.time}</b>
                                                 </span>
 
                                             </p>
-                                            <button
-                                                type="button"
-                                                className="client btn btn-outline-secondary mt-1 me-2"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#staticBackdrop0"
-                                            >
-                                                <i className="client bi bi-star-fill" />
-                                                Đánh giá
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="client btn btn-outline-danger mt-1 me-2"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#staticBackdrop1"
-                                            >
-                                                <i className="client bi bi-flag-fill" />
-                                                Báo cáo
-                                            </button>
                                             <button
                                                 type="button"
                                                 className="client btn btn-outline-info mt-1 me-2"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#staticBackdrop2"
                                             >
-                                                <i className="client bi bi-flag-fill" />
                                                 Chi tiết
                                             </button>
                                             <div
@@ -1779,6 +1875,7 @@ const Profile = () => {
                                         </div>
                                     </div>
                                 </div>
+                                ))}
                             </div>
                         </div>
                         <div
