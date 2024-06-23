@@ -22,6 +22,8 @@ import GarageOrder from './pages/garagre-owner/GarageOrder'
 import GarageOrderHistory from './pages/garagre-owner/GarageOrderHistory'
 import StaffInfo from './pages/garagre-owner/StaffInfo'
 import ChangeStaffPass from './pages/garagre-owner/ChangeStaffPass'
+import LayoutAD from './pages/admin/LayoutAD'
+import RegisterGarage from './pages/client/RegisterGarage'
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
             <Route path="about" element={<About />} />
             <Route path="service" element={<Service />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="register-garage" element={<RegisterGarage />} />
             <Route path="garage-list" element={<GarageList />} />
             <Route path="garage-detail/:id" element={<GarageDetail />} />
             <Route
@@ -50,6 +53,22 @@ function App() {
           <Route path="garage"
             element={<PrivateRoute>
               <LayoutG />
+            </PrivateRoute>}>
+            <Route index element={<GarageInfo />} />
+            <Route path="services" element={<ServicesGarage />} />
+            <Route path="brands" element={<BrandsGarage />} />
+            <Route path="garage" element={<GarageInfo />} />
+            <Route path="image-detail" element={<DetailImage />} />
+            <Route path="staffs" element={<StaffList />} />
+            <Route path="orders" element={<GarageOrder />} />
+            <Route path="order-history" element={<GarageOrderHistory />} />
+            <Route path="staff-info" element={<StaffInfo />} />
+            <Route path="staff-change-pass" element={<ChangeStaffPass />} />
+
+          </Route>
+          <Route path="admin"
+            element={<PrivateRoute>
+              <LayoutAD />
             </PrivateRoute>}>
             <Route index element={<GarageInfo />} />
             <Route path="services" element={<ServicesGarage />} />

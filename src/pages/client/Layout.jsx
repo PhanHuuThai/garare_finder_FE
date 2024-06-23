@@ -38,6 +38,9 @@ const Layout = (props) => {
             case '/service':
                 document.getElementById("service_page").classList.add("active")
                 return ' Dịch vụ'
+            case '/garage-list':
+                document.getElementById("garage_all_page").classList.add("active")
+                return ' Dịch vụ'
             case '/login':
                 return 'Đăng nhập'
             case '/register':
