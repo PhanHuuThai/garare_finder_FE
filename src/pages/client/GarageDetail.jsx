@@ -17,6 +17,7 @@ const GarageDetail = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [cars, setCars] = useState([]);
+    const [recommendGarage, setRecommendGarage] = useState([]);
     const [user, setUser] = useState({
         email: '',
         name: '',
@@ -51,9 +52,33 @@ const GarageDetail = () => {
     }, [])
 
     useEffect(() => {
+        const fetchRecommendGarage = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await axios.get(`${config.apiBaseUrl}/garage/get-recommend-garage/${id}`, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}` 
+                    }
+                });
+                if(!response.data.success) {
+                    setError(response.data.message)
+                }
+                setRecommendGarage(response.data.data);
+            } catch (error) {
+                setError(error.message);
+            } finally {
+                setLoading(false);
+            }
+            };
+            fetchRecommendGarage();
+    }, [])
+
+    useEffect(() => {
         const fetchServices = async () => {
         try {
             const token = localStorage.getItem('token');
+            setLoading(true);
             const response = await axios.get(`${config.apiBaseUrl}/garage/get-services/${id}`, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -77,6 +102,7 @@ const GarageDetail = () => {
         const fetchBrands = async () => {
         try {
             const token = localStorage.getItem('token');
+            setLoading(true);
             const response = await axios.get(`${config.apiBaseUrl}/garage/get-brands/${id}`, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -100,6 +126,7 @@ const GarageDetail = () => {
         const fetchCars = async () => {
         try {
             const token = localStorage.getItem('token');
+            setLoading(true);
             const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-cars`, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -224,7 +251,6 @@ const GarageDetail = () => {
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 9999
-
     };
 
     return (
@@ -244,7 +270,7 @@ const GarageDetail = () => {
             <div className="client client container-fluid">
                 <div className="client client row g-0 gx-5 align-items-start p-3">
                     <div className="client client col-lg-6 col-md-12">
-                        <div
+                        {/* <div
                             className="client client text-start mx-auto mt-2 wow slideInLeft"
                             data-wow-delay="0.1s"
                         >
@@ -269,7 +295,7 @@ const GarageDetail = () => {
                                 </span>
                                 {garage.phone}
                             </p>
-                        </div>
+                        </div> */}
                     </div>
                     <div
                         className="client client col-lg-6 col-md-12 text-lg-end wow slideInRight"
@@ -279,17 +305,16 @@ const GarageDetail = () => {
                             <button
                                 type="button"
                                 className="client client btn btn-outline-danger mt-1 me-2"
-                                data-bs-toggle="modal"
                                 onClick={openModal}
                             >
                                 <i className="client client bi bi-calendar-plus-fill" />
                                 Đặt lịch
                             </button>
                         </div>
-                        <div className="client client btn btn-outline-danger mt-1 d-inline-block">
+                        {/* <div className="client client btn btn-outline-danger mt-1 d-inline-block">
                             <i className="client client bi bi-flag-fill" />
                             Báo cáo
-                        </div>
+                        </div> */}
                         <Dialog header="Đặt lịch bảo dưỡng" visible={showModal} style={{ width: '50vw' }} onHide={() => {if (!showModal) return; setShowModal(false); }}>
                             <div className="client modal-body ">
                                 <form
@@ -519,12 +544,8 @@ const GarageDetail = () => {
                                     type="button"
                                     className="client btn btn-secondary"
                                     onClick={() => setShowModal(false)}
-
                                 >
                                     Close
-                                </button>
-                                <button type="button" className="client btn btn-primary">
-                                    Understood
                                 </button>
                             </div>
                        </Dialog>
@@ -542,13 +563,12 @@ const GarageDetail = () => {
                         <img
                             className="client client img-fluid"
                             style={{ width: "98%", height: "96%" }}
-                            src=""
+                            src={garage.img_thumnail}
                             alt=""
                         />
                     </div>
                     <div className="client client col-lg-6 col-md-6 col-sm-12 d-none d-sm-none d-md-block">
-                        <div className="client client row g-0">
-                            {/* foreach */}
+                        {/* <div className="client client row g-0">
                             <div className="client client col-lg-6 col-md-6 col-sm-6 mb-2">
                                 <img
                                     className="client client img-fluid"
@@ -557,6 +577,38 @@ const GarageDetail = () => {
                                     alt=""
                                 />
                             </div>
+                        </div> */}
+                        <div
+                            className="client client text-start mx-auto mt-2 wow slideInLeft"
+                            data-wow-delay="0.1s"
+                        >
+                            <h4 className="client client mb-3">
+                                { garage.name }
+                            </h4>
+                            <p>
+                                <span style={{ width: 40 }}>
+                                    <i className="client client bi bi-geo-alt-fill text_red me-2" />
+                                </span>
+                                {garage.address_detail}
+                            </p>
+                            <p>
+                                <span style={{ width: 40 }}>
+                                    <i className="client client bi bi-clock-fill text_red me-2" />
+                                </span>
+                                Giờ mở cửa - đóng cửa: {garage.time_open} - {garage.time_close}
+                            </p>
+                            <p>
+                                <span style={{ width: 40 }}>
+                                    <i className="client client fa fa-phone-alt text_red me-2" />
+                                </span>
+                                {garage.phone}
+                            </p>
+                            <p>
+                                <span style={{ width: 40 }}>
+                                    <i className="client client fa fa-envelope text_red me-2" />
+                                </span>
+                                {garage.email}
+                            </p>
                         </div>
                     </div>
                     <div className="client client d-md-none">
@@ -674,7 +726,7 @@ const GarageDetail = () => {
                                     <img
                                         className="client img-fluid"
                                         style={{ width: 40, height: 40 }}
-                                        src=""
+                                        src={brand.image}
                                         alt="Icon"
                                     />
                                 </div>
@@ -749,13 +801,13 @@ const GarageDetail = () => {
                                             <span style={{ width: 40 }}>
                                                 <i className="client client fa fa-phone-alt text_red me-2" />
                                             </span>
-                                            phone garage
+                                            {garage.phone}
                                         </p>
                                         <p className="client client align-middle">
                                             <span style={{ width: 40 }}>
                                                 <i className="client client bi bi-envelope-at-fill text_red me-2" />
                                             </span>
-                                            email garage
+                                            {garage.email}
                                         </p>
                                         <div className="client client align-middle mb-3">
                                             <form
@@ -768,13 +820,13 @@ const GarageDetail = () => {
                                                     name="id_garage"
                                                     defaultValue=""
                                                 />
-                                                <button
+                                                {/* <button
                                                     className="client client btn bg-danger text-white"
                                                     type="submit"
                                                     style={{ backgroundColor: "transparent", border: "none" }}
                                                 >
                                                     Nhắn tin cho garage
-                                                </button>
+                                                </button> */}
                                             </form>
                                         </div>
                                     </div>
@@ -788,7 +840,7 @@ const GarageDetail = () => {
             {/* rating */}
             <div className="client client container-fluid p-3 mt-3">
                 <div className="client client container">
-                    <div
+                    {/* <div
                         className="client client wow fadeInUp"
                         data-wow-delay="0.1s"
                         style={{ maxWidth: 660 }}
@@ -812,7 +864,6 @@ const GarageDetail = () => {
                                             </p>
                                         </div>
                                         <div className="client client px-3 text-center">
-                                            {/* check start of garage */}
                                             <span className="client client bi bi-star-half star-active mx-1" />
                                             <span className="client client bi bi-star star-active mx-1" />
                                             <span className="client client bi bi-star star-active mx-1" />
@@ -921,7 +972,7 @@ const GarageDetail = () => {
                             className="client client col-lg-4 col-md-none"
                             style={{ backgroundColor: "#fff" }}
                         ></div>
-                    </div>
+                    </div> */}
                     <div className="client client row">
                         <div className="client client col-sm-12">
                             <hr />
@@ -972,17 +1023,18 @@ const GarageDetail = () => {
                     </div>
                     <div className="client client row g-3 mt-2">
                         {/* foreach recommend garage */}
+                        {recommendGarage.map((garage) => (
                         <div
                             className="client client col-xl-3 col-lg-4 col-md-6 col-sm-6 wow fadeInUp"
                             data-wow-delay="0.1s"
                         >
-                            <div className="client client property-item rounded overflow-hidden">
+                                <div className="client client property-item rounded overflow-hidden">
                                 <div className="client client position-relative overflow-hidden">
-                                    <a href="">
+                                    <a  href={`/garage-detail/${garage.id}`}>
                                         <img
                                             className="client client img-fluid"
                                             style={{ width: "100%", height: "80%" }}
-                                            src=""
+                                            src={garage.img_thumnail}
                                             alt=""
                                         />
                                     </a>
@@ -1012,14 +1064,14 @@ const GarageDetail = () => {
                                     </div>
                                 </div>
                                 <div className="client client p-3 pb-0">
-                                    <h5 className="client client text_red mb-3">$12,345</h5>
-                                    <a
+                                    <h5 className="client client text_red mb-3">{garage.name}</h5>
+                                    {/* <a
                                         className="client client d-block h5 mb-2"
                                         href=""
                                         style={{ height: 48 }}
                                     >
                                         name garage
-                                    </a>
+                                    </a> */}
                                     <p
                                         className="client client mt-2 "
                                         style={{
@@ -1031,22 +1083,23 @@ const GarageDetail = () => {
                                         }}
                                     >
                                         <i className="client client fa fa-map-marker-alt text_red me-2" />
-                                        address garage
+                                        {garage.address_detail}
                                     </p>
                                 </div>
                                 <div className="client client d-flex">
                                     <small className="client client flex-fill text-start mx-4 me-5">Đánh giá</small>
-                                    <small className="client client flex-fill text-start pb-2 ms-5">
-                                        total star
-                                        <i className="client client bi bi-star-fill text_red " />
-
-                                        count star
-                                    </small>
+                                    <small className="client  flex-fill text-start pb-2 ms-5">
+                                            <i className="client  bi bi-star-fill text_red " />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red" />
+                                            <i className="client  bi bi-star-fill text_red me-1" /> 5
+                                        </small>
                                 </div>
                                 <div className="client client d-flex border-top mt-2">
                                     <small className="client client flex-fill text-start border-end py-2 mx-4">
                                         <i className="client client far fa-calendar-plus text_red me-3" />
-                                        <a href="" className="client client text_red">
+                                        <a  href={`/garage-detail/${garage.id}`} className="client client text_red">
                                             Đặt lịch ngay
                                         </a>
                                     </small>
@@ -1072,8 +1125,9 @@ const GarageDetail = () => {
                                         </form>
                                     </small>
                                 </div>
-                            </div>
+                            </div>                          
                         </div>
+                         ))}
                     </div>
                 </div>
             </div>

@@ -1,10 +1,60 @@
 
-import { Link } from 'react-router-dom'
 import logo from '../../assets/images/logo-1.png'
+import axios from 'axios';
+import { Link, useNavigate } from "react-router-dom"
+import config from '../../config';
+import ReactLoading from 'react-loading';
+import { useState } from 'react';
 const Header = () => {
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate()
+    const token = localStorage.getItem('token');
+    const handleLogout = async (e) => {
+        // e.preventDefault()
+        try {
+            setLoading(true)
+            const response = await axios.get(`${config.apiBaseUrl}/auth/logout`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }});
+            console.log(response)
+            if (response.data.status) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/')
+            }
+            setLoading(false)
+        } catch (error) {
+        }
+    }
+
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+
+    };
     return (
         <>
             <div className="client container-fluid bg-white p-0">
+            <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
                 <div className="client container-xxl nav-bar bg-transparent">
                     <nav className="client navbar navbar-expand-lg bg-white navbar-light py-0">
                         <Link to="/" className="client navbar-brand d-flex align-items-center text-center">
@@ -50,7 +100,9 @@ const Header = () => {
                                 className="client d-lg-flex d-none d-md-none d-sm-none mx-2 my-2"
                                 style={{ backgroundColor: "#000", width: "1.5px", height: 39 }}
                             />
+                            {token && 
                             <div className="client nav-item dropdown" style={{ minWidth: 100 }}>
+                            
                                 <a
                                     href="#"
                                     className="client nav-link dropdown-toggle"
@@ -58,34 +110,30 @@ const Header = () => {
                                 >
                                     Name
                                 </a>
-                                <div className="client dropdown-menu rounded-0 m-0">
+                                    <div className="client dropdown-menu rounded-0 m-0">
                                     <Link to="/profile" className="client dropdown-item">
                                         Thông tin cá nhân
                                     </Link>
-                                    <a href="{{ url('/list-garage') }}" className="client dropdown-item">
-                                        Garage của tôi
-                                    </a>
-                                    <a href="{{ url('/chat') }}" className="client dropdown-item">
-                                        Tin nhắn
-                                    </a>
-                                    <a href="404.html" className="client dropdown-item">
-                                        404 Error
-                                    </a>
                                     <Link className="client dropdown-item">
-                                        <form action="" method="POST">
-                                            <button className="client btn btn-primary" type="submit">
+                                        <div action="" method="POST">
+                                            <button className="client btn btn-primary" onClick={() => handleLogout()}>
                                                 Đăng xuất
                                             </button>
-                                        </form>
+                                        </div>
                                     </Link>
-                                </div>
                             </div>
+                            </div>
+                            }
+
+                            {!token && 
                             <Link
-                                to="/login"
-                                className="client btn btn-primary px-3 d-md-flex d-sm-flex d-flex d-lg-flex "
-                            >
-                                Đăng nhập
-                            </Link>
+                            to="/login"
+                            className="client btn btn-primary px-3 d-md-flex d-sm-flex d-flex d-lg-flex "
+                        >
+                            Đăng nhập
+                        </Link>
+                            }
+                            
                         </div>
                     </nav>
                 </div>

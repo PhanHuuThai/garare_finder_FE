@@ -5,6 +5,7 @@ import config from "../../config";
 import ReactPaginate from "react-paginate";
 import '../../assets/css/client/pagination.css'
 import ReactLoading from 'react-loading';
+import { Link, useNavigate } from "react-router-dom"
 
 
 const GarageList = () => {
@@ -13,7 +14,18 @@ const GarageList = () => {
     const garagesPerPage = 9;
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-  
+    const navigate = useNavigate()
+
+    const handleLinkClick = (id) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login')
+        } else {
+            navigate(`/garage-detail/${id}`)
+        }
+    };
+    
+
     useEffect(() => {
         const fetchGarages = async () => {
         try {
@@ -181,10 +193,10 @@ const GarageList = () => {
                                     <div key={garage.id} className="client  col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div className="client  property-item rounded overflow-hidden">
                                         <div className="client  position-relative overflow-hidden">
-                                        <a href="">
+                                        <a onClick={() => handleLinkClick(garage.id)}>
                                             <img
                                             className="client  img-fluid"
-                                            src={require('../../assets/images/1_1701764702_t_1.webp')}
+                                            src={garage.img_thumnail}
                                             alt={garage.name}
                                             />
                                         </a>
@@ -235,7 +247,7 @@ const GarageList = () => {
                                         <div className="client  d-flex border-top mt-2">
                                         <small className="client  flex-fill text-start border-end py-2 mx-4">
                                             <i className="client  far fa-calendar-plus text_red me-3" />
-                                            <a href={`/garage-detail/${garage.id}`} className="client  text_red">
+                                            <a onClick={() => handleLinkClick(garage.id)} className="client  text_red">
                                             Đặt lịch ngay
                                             </a>
                                         </small>

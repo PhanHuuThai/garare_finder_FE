@@ -4,12 +4,24 @@ import Search from "../../components/client/Search";
 import config from "../../config";
 import axios from "axios";
 import { useCommon } from "../../context/CommonContext";
+import { Link, useNavigate } from "react-router-dom"
+
 
 const Home = () => {
     const {fetchServices} = useCommon()
     const [garages, setGarages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate()
+
+    const handleLinkClick = (id) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            navigate('/login')
+        } else {
+            navigate(`/garage-detail/${id}`)
+        }
+    };
 
     
     const handleSearchResults = (data) => {
@@ -49,7 +61,7 @@ const Home = () => {
                         >
                             Hãy để chúng tôi giới thiệu cho bạn các garage tốt nhất xung quanh bạn.
                         </p>
-                        <a href="" className="client btn btn-primary py-3 px-5 me-3 animated fadeIn">
+                        <a href={`/garage-list`} className="client btn btn-primary py-3 px-5 me-3 animated fadeIn">
                             Đặt ngay
                         </a>
                     </div>
@@ -100,10 +112,10 @@ const Home = () => {
                                     <div key={garage.id} className="client col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                                     <div className="client property-item rounded overflow-hidden">
                                         <div className="client position-relative overflow-hidden">
-                                        <a href="">
+                                        <a onClick={() => handleLinkClick(garage.id)}>
                                             <img
                                             className="client img-fluid"
-                                            src={require('../../assets/images/1_1701764702_t_1.webp')}
+                                            src={garage.img_thumnail}
                                             alt={garage.name}
                                             />
                                         </a>
@@ -154,7 +166,7 @@ const Home = () => {
                                         <div className="client d-flex border-top mt-2">
                                         <small className="client flex-fill text-start border-end py-2 mx-4">
                                             <i className="client far fa-calendar-plus text_red me-3" />
-                                            <a href="" className="client text_red">
+                                            <a onClick={() => handleLinkClick(garage.id)} className="client text_red">
                                             Đặt lịch ngay
                                             </a>
                                         </small>

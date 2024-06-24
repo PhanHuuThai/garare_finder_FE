@@ -28,6 +28,8 @@ const Profile = () => {
     const [orderComplete, setOrderComplete] = useState([])
     const [filteredOrders, setFilteredOrders] = useState([]);
     const [currentTab, setCurrentTab] = useState('all');
+    const [errorUpdate, setErrorUpdate] = useState('')
+    const [orderDetail, steOrderDetail] = useState([])
 
     const [user, setUser] = useState({
         address: '',
@@ -41,6 +43,27 @@ const Profile = () => {
         id_province: '',
         id_district: ''
     });
+
+    const fetchOrderDetail = async (id) => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/garage/order/order-detail/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+            if (response.data.success) {
+                steOrderDetail(response.data.data);
+            } else {
+                setError(response.data.message);
+            }
+        } catch (error) {
+            setError('Có lỗi xảy ra khi lấy thông tin đơn hàng của garage');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [newCar, setNewCar] = useState({
         brand: '',
@@ -202,8 +225,23 @@ const Profile = () => {
         setImageFile(e.target.files[0]);
     };
 
+    const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!user.name || !user.email || !user.phone || !user.image ||
+            !user.address || !user.id_province || !user.id_district || !user.id_ward) {
+                setErrorUpdate('Vui lòng điền đầy đủ thông tin.');
+            return;
+        }
+
+        if (!validateEmail(user.email)) {
+            setErrorUpdate('Email không đúng định dạng');
+            return;
+        }
         const formData = new FormData();
         formData.append('name', user.name);
         formData.append('email', user.email);
@@ -641,18 +679,6 @@ const Profile = () => {
                         >
                             <i className="client far fa-calendar-alt" /> Lịch sử đặt lịch
                         </button>
-                        <button
-                            className="client btn btn-outline-danger btn_menu_profile border-0 py-3 me-1 h-4 my-1 rounded-1"
-                            id="v-pills-chat-tab"
-                            data-bs-toggle="pill"
-                            data-bs-target="#v-pills-chat"
-                            type="button"
-                            role="tab"
-                            aria-controls="v-pills-settings"
-                            aria-selected="false"
-                        >
-                            <i className="client fas fa-comments" /> Tin nhắn
-                        </button>
                     </div>
                 </div>
                 <div className="client col-lg-9 col-md-7 col-sm-7 col-12 mt-3">
@@ -809,7 +835,7 @@ const Profile = () => {
                                                             value={user.id_province}
                                                             onChange={handleInputChange(setUser)}
                                                         >
-                                                            <option value={0} disabled="" selected="">
+                                                            <option value="" disabled>
                                                                 Thành phố/Tỉnh
                                                             </option>
                                                             {cities.map((city) => (
@@ -830,6 +856,9 @@ const Profile = () => {
                                                                 value={user.id_district}
                                                                 onChange={handleInputChange(setUser)}
                                                             >
+                                                            <option value="" disabled>
+                                                                Quận/Huyện
+                                                            </option>
                                                             {districts.map((district) => (
                                                             <option key={district.id} value={district.id}>
                                                                 {district.name}
@@ -848,6 +877,9 @@ const Profile = () => {
                                                                     value={user.id_ward}
                                                                     onChange={handleInputChange(setUser)}
                                                                 >
+                                                                <option value="" disabled>
+                                                                    Phường/xã
+                                                                </option>
                                                                 {wards.map((ward) => (
                                                                 <option key={ward.id} value={ward.id}>
                                                                     {ward.name}
@@ -860,6 +892,7 @@ const Profile = () => {
                                                     </div>
                                                 </div>
                                             </div>
+                                            {errorUpdate && <p style={{ color: "red" }}>{errorUpdate}</p>}
                                         </div>
                                         <div className="client row g-3 align-items-center">
                                             <div className="client col-3"></div>
@@ -1124,21 +1157,18 @@ const Profile = () => {
                                     {favouriteGarage.map(garage => (
                                     <div className="client property-item rounded overflow-hidden">
                                         <div className="client position-relative overflow-hidden">
-                                            <a href="">
+                                            <a href={`/garage-detail/${garage.id}`} >
                                                 <img
                                                     className="client img-fluid"
                                                     style={{ width: "100%", height: "80%" }}
-                                                    src=""
+                                                    src={garage.img_thumnail}
                                                     alt=""
                                                 />
                                             </a>
                                             
                                         </div>
                                         <div className="client p-3 pb-0">
-                                            <h5 className="client text_red mb-3">$12,345</h5>
-                                            <a className="client d-block h5 mb-2" href="" style={{ height: 48 }}>
-                                                
-                                            </a>
+                                            <h5 className="client text_red mb-3">{garage.name}</h5>
                                             <p
                                                 className="client mt-2 "
                                                 style={{
@@ -1167,7 +1197,7 @@ const Profile = () => {
                                         <div className="client d-flex border-top mt-2">
                                             <small className="client flex-fill text-start border-end py-2 mx-4">
                                                 <i className="client far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="client text_red">
+                                                <a href={`/garage-detail/${garage.id}`} className="client text_red">
                                                     Đặt lịch ngay
                                                 </a>
                                             </small>
@@ -1418,6 +1448,7 @@ const Profile = () => {
                                                 className="client btn btn-outline-info mt-1 me-2"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#staticBackdrop2"
+                                                onClick={() => fetchOrderDetail(order.id)}
                                             >
                                                 Chi tiết
                                             </button>
@@ -1666,205 +1697,209 @@ const Profile = () => {
                                                 aria-labelledby="staticBackdropLabel"
                                                 aria-hidden="true"
                                             >
-                                                <div className="client modal-dialog modal-lg modal-dialog-centered">
-                                                    <div className="client modal-content">
-                                                        <div className="client modal-header">
+                                                <div className="modal-dialog modal-lg modal-dialog-centered">
+                                                    <div className="modal-content">
+                                                        <div className="modal-header">
                                                             <h5
-                                                                className="client modal-title text-center"
+                                                                className="modal-title text-center"
                                                                 id="staticBackdropLabel"
                                                             >
                                                                 Chi tiết đơn đặt lịch
                                                             </h5>
                                                             <button
                                                                 type="button"
-                                                                className="client btn-close"
+                                                                className="btn-close"
                                                                 data-bs-dismiss="modal"
                                                                 aria-label="Close"
                                                             />
                                                         </div>
-                                                        <div className="client modal-body ">
-                                                            <div className="client row mb-3 text-start">
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Họ và tên:</span>
+                                                        <div className="modal-body ">
+                                                            <div className="row mb-3 text-start">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Họ và tên:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-                                                                                name
+                                                                                {order.name}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">
                                                                                 Số điện thoại:
                                                                             </span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-                                                                                phone
+                                                                                {order.phone}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="client row mb-3 text-start">
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Tên xe:</span>
+                                                            <div className="row mb-3 text-start">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Tên xe:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-                                                                                carname
+                                                                            {order.car_name}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Hãng xe:</span>
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Hãng xe:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="client row mb-3 text-start">
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Dịch vụ:</span>
-                                                                        </div>
-                                                                        <div className="client col-sm-7">
-                                                                            <span>
-
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Biển số:</span>
-                                                                        </div>
-                                                                        <div className="client col-sm-7">
-                                                                            <span>
-
+                                                                                {order.brand_name}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="client row mb-3 text-start">
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Thời gian:</span>
+                                                            <div className="row mb-3 text-start">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Dịch vụ:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-
+                                                                                {order.service_name}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Đặt lúc:</span>
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Biển số:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
                                                                             <span>
-
+                                                                                {order.license}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div className="client row mb-3 text-start">
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">
+                                                            <div className="row mb-3 text-start">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Thời gian:</span>
+                                                                        </div>
+                                                                        <div className="col-sm-7">
+                                                                            <span>
+                                                                                {order.time}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Đặt lúc:</span>
+                                                                        </div>
+                                                                        <div className="col-sm-7">
+                                                                            <span>
+                                                                                {order.create_at}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {/* <div className="row mb-3 text-start">
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">
                                                                                 Tổng số lượng:
                                                                             </span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
 
                                                                             <span>
-
+                                                                                total
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div className="client col-sm-6">
-                                                                    <div className="client row">
-                                                                        <div className="client col-sm-5">
-                                                                            <span className="client fw-bold">Tổng tiền:</span>
+                                                                <div className="col-sm-6">
+                                                                    <div className="row">
+                                                                        <div className="col-sm-5">
+                                                                            <span className="fw-bold">Tổng tiền:</span>
                                                                         </div>
-                                                                        <div className="client col-sm-7">
+                                                                        <div className="col-sm-7">
 
                                                                             <span>
-                                                                                00000
+                                                                                qty * number
                                                                                 VNĐ
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
+                                                            </div> */}
                                                             <h5>Chi tiết dịch vụ</h5>
-                                                            <div className="client table-responsive">
-                                                                <table className="client table text-nowrap">
+                                                            <div className="table-responsive">
+
+                                                                <table className="table text-nowrap">
                                                                     <thead>
                                                                         <tr>
-                                                                            <th className="client border-top-0">Tên thiết bị</th>
-                                                                            <th className="client border-top-0">Số lượng</th>
-                                                                            <th className="client border-top-0">
+                                                                            <th className="border-top-0">
+                                                                                Tên thiết bị
+                                                                            </th>
+                                                                            <th className="border-top-0">Số lượng</th>
+                                                                            <th className="border-top-0">
                                                                                 Giá tiền/thiết bị
                                                                             </th>
-                                                                            <th className="client border-top-0">Ghí chú</th>
+                                                                            <th className="border-top-0">Ghí chú</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody id="body_table">
+                                                                        {orderDetail.map((order) => (
                                                                         <tr>
-                                                                            <td>
-                                                                                <div className="client col-md-12 p-0">
-                                                                                    <p>
-                                                                                        name
-                                                                                    </p>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td>
-                                                                                <div className="client col-md-12 p-0">
-                                                                                    <p>
-                                                                                        qty
-                                                                                    </p>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td>
-                                                                                <div className="client col-md-12 p-0">
-                                                                                    <p>
-                                                                                        price
-                                                                                        VNĐ
-                                                                                    </p>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td>
-                                                                                <div className="client col-md-12 p-0">
-                                                                                    <p>
-                                                                                        note
-                                                                                    </p>
-                                                                                </div>
-                                                                            </td>
-                                                                        </tr>
+                                                                        <td>
+                                                                            <div className="col-md-12 p-0">
+                                                                                <p>
+                                                                                    {order.name}
+                                                                                </p>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="col-md-12 p-0">
+                                                                                <p>
+                                                                                {order.qty}
+                                                                                </p>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="col-md-12 p-0">
+                                                                                <p>
+                                                                                {order.price}
+                                                                                </p>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td>
+                                                                            <div className="col-md-12 p-0">
+                                                                                <p>
+                                                                                {order.note}
+                                                                                </p>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                        ))}
                                                                     </tbody>
                                                                 </table>
                                                             </div>

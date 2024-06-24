@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import config from "../../config";
 import ReactLoading from 'react-loading';
+import { Dialog } from 'primereact/dialog';
 
 const GarageOrder = () => {
     const [orders, setOrders] = useState([]);
@@ -12,6 +13,55 @@ const GarageOrder = () => {
     const [isUpdate, setIsUpdate] = useState(false);
     const [dateTime, setDateTime] = useState('');
     const [currentTab, setCurrentTab] = useState('all');
+    const [showModal, setShowModal] = useState(false);
+    const initialRow = { name: "", qty: "", price: "", note: "" };
+    const [rows, setRows] = useState([initialRow]);
+    const [idOrder, setIdOrder] = useState('')
+    const [errorBill, setErrorBill] = useState('')
+
+    const addRow = () => {
+        setRows([...rows, { name: "", qty: "", price: "", note: "" }]);
+    };
+
+    useEffect(() => {
+        if (!showModal) {
+            setRows([initialRow]);
+        }
+    }, [showModal]);
+
+
+    const handleInputChange = (index, event) => {
+        const { name, value } = event.target;
+        const newRows = [...rows];
+        newRows[index][name] = value;
+        setRows(newRows);
+    };
+
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            const token = localStorage.getItem("token"); // Lấy token từ localStorage
+            const response = await axios.post(`${config.apiBaseUrl}/garage/order/payment/${idOrder}`, 
+            { bill: rows },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Truyền token vào header
+                },
+            });
+            if(response.data.success) {
+                alert("Thanh toán thành công")
+                setShowModal(false); 
+            }
+            else {
+                setErrorBill(response.data.message)
+            }
+        } catch (error) {
+            console.error("There was an error adding the order details!", error);
+            // Xử lý lỗi nếu cần thiết
+        }
+    };
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -38,6 +88,12 @@ const GarageOrder = () => {
 
         fetchOrders();
     }, [isUpdate]);
+
+    const openModal = (id) => {
+        setShowModal(true);
+        setIdOrder(id)
+    };
+
 
     const filterOrders = (status) => {
         let filtered;
@@ -102,6 +158,100 @@ const GarageOrder = () => {
         <> 
             {error && <p style={{ color: 'red' }}>{error}</p>}
             <div className="page-wrapper text-start">
+            <Dialog header="Đặt lịch bảo dưỡng" visible={showModal} style={{ width: '50vw' }} onHide={() => {if (!showModal) return; setShowModal(false); }}>
+            <div className="container-fluid">
+                <div className="row">
+                    <div className="col-sm-12">
+                        <div className="white-box">
+                            <h3 className="box-title mb-4">Chi tiết hóa đơn</h3>
+                            <div className="">
+                                <form className="form-horizontal form-material" onSubmit={handleSubmit}>
+                                    <div className="table-responsive">
+                                        <table className="table text-nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th className="border-top-0">Tên thiết bị</th>
+                                                    <th className="border-top-0">Số lượng</th>
+                                                    <th className="border-top-0">Giá tiền/thiết bị</th>
+                                                    <th className="border-top-0">Ghi chú</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="body_table">
+                                                {rows.map((row, index) => (
+                                                    <tr key={index}>
+                                                        <td>
+                                                            <div className="col-md-12 border-bottom p-0">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Tên thiết bị"
+                                                                    name="name"
+                                                                    value={row.name}
+                                                                    className="form-control p-0 border-0"
+                                                                    onChange={(e) => handleInputChange(index, e)}
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="col-md-12 border-bottom p-0">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Số lượng"
+                                                                    name="qty"
+                                                                    value={row.qty}
+                                                                    className="form-control p-0 border-0"
+                                                                    onChange={(e) => handleInputChange(index, e)}
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="col-md-12 border-bottom p-0">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Giá tiền/thiết bị"
+                                                                    name="price"
+                                                                    value={row.price}
+                                                                    className="form-control p-0 border-0"
+                                                                    onChange={(e) => handleInputChange(index, e)}
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div className="col-md-12 border-bottom p-0">
+                                                                <input
+                                                                    type="text"
+                                                                    placeholder="Ghi chú"
+                                                                    name="note"
+                                                                    value={row.note}
+                                                                    className="form-control p-0 border-0"
+                                                                    onChange={(e) => handleInputChange(index, e)}
+                                                                />
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="col-sm-12 text-primary text-center">
+                                        <span style={{ cursor: "pointer" }} id="add_payment" onClick={addRow}>
+                                            <i className="fas fa-plus" style={{ fontSize: 12 }} /> Thêm thiết bị
+                                        </span>
+                                    </div>
+                                    <div className="form-group mb-4">
+                                        <div className="col-sm-12">
+                                            <button className="btn btn-success" type="submit">
+                                                Hoàn tất
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Dialog>
+
             <div style={{ position: 'relative' }}>
                     {loading && (
                         <div style={loadingOverlayStyle}>
@@ -132,6 +282,7 @@ const GarageOrder = () => {
                     </div>
                     {/* /.col-lg-12 */}
                 </div>
+                
                 <div className="container-fluid">
                     <div className="row">
                         <div className="col-sm-12">
@@ -314,8 +465,8 @@ const GarageOrder = () => {
                                                     )}
                                                     {order.status == 2 && (
                                                     <a
-                                                        href=""
                                                         className="btn btn-outline-primary"
+                                                        onClick={() => openModal(order.id)}
                                                     >
                                                         Thanh toán
                                                     </a>

@@ -1,10 +1,115 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import Search from "../../components/client/Search"
+import axios from "axios";
+import config from "../../config";
+import ReactLoading from 'react-loading';
 
 const Contact = () => {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [help, setHelp] = useState({
+        email: '',
+        name: '',
+        phone: '',
+        message: '',
+    });
+
+    const handleInputChange = (setter) => (e) => {
+        const { name, value } = e.target;
+        setter(prevState => ({
+            ...prevState,
+            [name]: value
+        }));
+    };
+
+    const validateForm = () => {
+        return help.name && help.phone && help.email && help.message;
+      };
+
+      const validateEmail = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    };
+    
+    const validatePhone = (phone) => {
+        const regex = /^[0-9]{10,11}$/;
+        return regex.test(phone);
+    };
+
+
+    const handleHelp = async (e) => {
+        // e.preventDefault();
+        console.log("aaa")
+        if (!validateForm()) {
+            setError('Bạn cần nhập đầy đủ thông tin');
+            return;
+        }
+
+        if (!validateEmail(help.email)) {
+            setError('Email không đúng định dạng');
+            return;
+        }
+    
+        if (!validatePhone(help.phone)) {
+            setError('Số điện thoại không đúng định dạng');
+            return;
+        }       
+
+        setLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.post(`${config.apiBaseUrl}/client/help`, help, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }
+            });
+            if(response.data.success) {
+                alert("đăng ký hỗ trợ thành công")
+                setHelp({
+                    email: '',
+                    name: '',
+                    phone: '',
+                    message: '',
+                })
+                setError('')
+            } else {
+                setError(response.data.message)
+            }
+            setLoading(false)
+        } catch (error) {
+          setError(error.message);
+        } finally {
+            setLoading(false);
+        }
+      };
+
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+    };
+
     return (
         <div className="client container-xxl bg-white p-0">
+             <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
             {/* Header Start */}
             <div className="client container-fluid header bg-white p-0">
                 <div className="client row g-0 align-items-center flex-column-reverse flex-md-row">
@@ -116,7 +221,7 @@ const Contact = () => {
                                     Bạn có thể đăng ký hỗ trợ với chúng tôi bằng cách sau, chúng tôi
                                     sẽ liên hệ lại với bạn!
                                 </p>
-                                <form action="" method="POST">
+                                <div>
                                     <div className="client row g-3">
                                         <div className="client col-md-6">
                                             <div className="client form-floating mb-2">
@@ -126,6 +231,8 @@ const Contact = () => {
                                                     id="name"
                                                     name="name"
                                                     placeholder="Tên"
+                                                    value={help.name}
+                                                    onChange={handleInputChange(setHelp)}
                                                 />
                                                 <label htmlFor="name">Tên</label>
                                             </div>
@@ -138,6 +245,8 @@ const Contact = () => {
                                                     id="email"
                                                     name="email"
                                                     placeholder="Email"
+                                                    value={help.email}
+                                                    onChange={handleInputChange(setHelp)}
                                                 />
                                                 <label htmlFor="email">Email</label>
                                             </div>
@@ -150,6 +259,8 @@ const Contact = () => {
                                                     id="phone"
                                                     placeholder="Số điện thoại"
                                                     name="phone"
+                                                    value={help.phone}
+                                                    onChange={handleInputChange(setHelp)}
                                                 />
                                                 <label htmlFor="phone">Số điện thoại</label>
                                             </div>
@@ -162,17 +273,22 @@ const Contact = () => {
                                                     id="message"
                                                     style={{ height: 150 }}
                                                     name="message"
+                                                    value={help.message}
+                                                    onChange={handleInputChange(setHelp)}
                                                 />
                                                 <label htmlFor="message">Thông tin cần hỗ trợ</label>
                                             </div>
                                         </div>
+                                        {error && <div className="client text_red">{error}</div>}
                                         <div className="client col-12">
-                                            <button className="client btn btn-primary w-100 py-3" type="submit">
+                                            <button className="client btn btn-primary w-100 py-3" 
+                                                onClick={() => handleHelp()}
+                                            >
                                                 Gửi yêu cầu
                                             </button>
                                         </div>
                                     </div>
-                                </form>
+                                </div>
                             </div>
                         </div>
                     </div>
