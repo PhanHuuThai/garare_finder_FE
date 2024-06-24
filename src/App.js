@@ -27,6 +27,7 @@ import RegisterGarage from './pages/client/RegisterGarage'
 import UserList from './pages/admin/UserList'
 import GarageListAD from './pages/admin/Garages'
 import BrandList from './pages/admin/Brands'
+import ServiceList from './pages/admin/Services'
 
 function App() {
   return (
@@ -74,7 +75,7 @@ function App() {
               <LayoutAD />
             </PrivateRoute>}>
             <Route index element={<UserList />} />
-            <Route path="services" element={<ServicesGarage />} />
+            <Route path="services" element={<ServiceList />} />
             <Route path="brands" element={<BrandList />} />
             <Route path="users" element={<UserList />} />
             <Route path="garages" element={<GarageListAD />} />

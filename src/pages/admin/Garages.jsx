@@ -14,7 +14,7 @@ const GarageListAD = () => {
     const [currentGarages, setCurrentGarages] = useState([])
     const [pageCount, setPageCount] = useState(0)
 
-    const fetchUsers = async () => {
+    const fetchGarages = async () => {
         try {
             setIsLoading(true)
             const response = await axios.get(`${config.apiBaseUrl}/admin/garage`, {
@@ -56,7 +56,7 @@ const GarageListAD = () => {
     };
 
     useEffect(() => {
-        fetchUsers()
+        fetchGarages()
     }, [])
 
     return (
@@ -226,39 +226,40 @@ const GarageListAD = () => {
                                                     </tr>
                                                 )
                                             }
-                                            <div
-                                                className="col-12 text-center wow fadeInUp"
-                                                data-wow-delay="0.1s"
-                                            >
-                                                <div className="d-flex justify-content-center my-4">
-                                                    <div className="Page navigation example">
-                                                        <div >
-                                                            <ReactPaginate
-                                                                previousLabel={'Trước'}
-                                                                nextLabel={'Tiếp'}
-                                                                breakLabel={'...'}
-                                                                pageCount={pageCount}
-                                                                marginPagesDisplayed={2}
-                                                                pageRangeDisplayed={5}
-                                                                onPageChange={handlePageClick}
-                                                                containerClassName={'pagination'}
-                                                                pageClassName={'page-item'}
-                                                                pageLinkClassName={'page-link'}
-                                                                previousClassName={'page-item'}
-                                                                previousLinkClassName={'page-link'}
-                                                                nextClassName={'page-item'}
-                                                                nextLinkClassName={'page-link'}
-                                                                breakClassName={'break-me'}
-                                                                activeClassName={'selected'}
-                                                                disabledClassName={'disabled'}
-                                                            />
 
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </tbody>
                                     </table>
+                                    <div
+                                        className="col-12 text-center wow fadeInUp"
+                                        data-wow-delay="0.1s"
+                                    >
+                                        <div className="d-flex justify-content-center my-4">
+                                            <div className="Page navigation example">
+                                                <div >
+                                                    <ReactPaginate
+                                                        previousLabel={'Trước'}
+                                                        nextLabel={'Tiếp'}
+                                                        breakLabel={'...'}
+                                                        pageCount={pageCount}
+                                                        marginPagesDisplayed={2}
+                                                        pageRangeDisplayed={5}
+                                                        onPageChange={handlePageClick}
+                                                        containerClassName={'pagination'}
+                                                        pageClassName={'page-item'}
+                                                        pageLinkClassName={'page-link'}
+                                                        previousClassName={'page-item'}
+                                                        previousLinkClassName={'page-link'}
+                                                        nextClassName={'page-item'}
+                                                        nextLinkClassName={'page-link'}
+                                                        breakClassName={'break-me'}
+                                                        activeClassName={'selected'}
+                                                        disabledClassName={'disabled'}
+                                                    />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
