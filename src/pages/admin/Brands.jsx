@@ -112,7 +112,7 @@ const BrandList = () => {
                                             <th style={{}} className="border-top-0 text-center">Ảnh</th>
                                             <th style={{}} className="border-top-0 text-center">Tên</th>
                                             <th style={{}} className="border-top-0 text-center">Mô tả</th>
-                                            <th style={{}} className="border-top-0 action" />
+                                            <th style={{ width: '120px' }} className="border-top-0 action" />
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -137,8 +137,8 @@ const BrandList = () => {
                                                         <td className="text-center">
                                                             {brand.description}
                                                         </td>
-                                                        <td>
-                                                            <a
+                                                        <td >
+                                                            <a style={{ width: "100px" }}
                                                                 href=""
                                                                 className="btn btn-primary d-md-block mb-3 hidden-xs hidden-sm waves-effect waves-light text-white"
                                                             >
@@ -152,6 +152,7 @@ const BrandList = () => {
                                                                 <button
                                                                     className="btn btn-danger d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
                                                                     type="submit"
+                                                                    style={{ width: "100px" }}
                                                                 >
                                                                     <i className="fas fa-ban mx-2" aria-hidden="true" />
                                                                     Xóa
