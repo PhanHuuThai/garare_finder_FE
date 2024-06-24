@@ -1,5 +1,5 @@
 
-import { act, useEffect, useState } from "react";    
+import { act, useEffect, useState } from "react";
 import axios from "axios";
 import { useCommon } from "../../context/CommonContext";
 import config from "../../config";
@@ -44,7 +44,7 @@ const Profile = () => {
         license: '',
         type: '',
         image: ''
-      });
+    });
 
     const [carUpdate, setCarUpdate] = useState({
         id: "",
@@ -76,103 +76,102 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchDistrict = async () => {
-            if(user.id_province) {
+            if (user.id_province) {
                 const apiUrl = `${config.apiBaseUrl}/client/get-districts/${user.id_province}`;
                 try {
-                    setLoading(true); 
-                  const response = await axios.get(apiUrl);
-                  let data = response.data;
-                  if (!data.success) {
-                      setError(data.message)
-                  }
-                  setDistricts(data.data);
+                    setLoading(true);
+                    const response = await axios.get(apiUrl);
+                    let data = response.data;
+                    if (!data.success) {
+                        setError(data.message)
+                    }
+                    setDistricts(data.data);
                 } catch (error) {
-                  setError(error.message);
+                    setError(error.message);
                 } finally {
                     setLoading(false); // Kết thúc loading
                 }
-        
+
             }
-          };
-          fetchDistrict()
+        };
+        fetchDistrict()
     }, [user.id_province])
 
     useEffect(() => {
         const fetchWards = async () => {
-            if(user.id_district)
-            {
-                setLoading(true); 
+            if (user.id_district) {
+                setLoading(true);
                 const apiUrl = `${config.apiBaseUrl}/client/get-wards/${user.id_district}`;
                 try {
-                  const response = await axios.get(apiUrl);
-                  let data = response.data;
-                  if (!data.success) {
-                      setError(data.message)
-                  }
-                  setWards(data.data);
+                    const response = await axios.get(apiUrl);
+                    let data = response.data;
+                    if (!data.success) {
+                        setError(data.message)
+                    }
+                    setWards(data.data);
                 } catch (error) {
-                  setError(error.message);
+                    setError(error.message);
                 } finally {
                     setLoading(false); // Kết thúc loading
                 }
-        
+
             }
-          };
-          fetchWards()
+        };
+        fetchWards()
     }, [user.id_district])
 
     useEffect(() => {
         const fetchCards = async () => {
-            setLoading(true); 
-                try {
-                    const token = localStorage.getItem('token');
-                    setLoading(true); 
-                    const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-cars`, {
-                        headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${token}` 
-                        }
-                    });
-                    if(response.data.success){
-                        setCars(response.data.data)
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('token');
+                setLoading(true);
+                const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-cars`, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
                     }
-                    setError(response.data.message)
-                    // Handle success (e.g., show a success message or update the UI)
-                } catch (error) {
-                    console.error('There was an error updating the user!', error);
-                    // Handle error (e.g., show an error message)
-                } finally {
-                    setLoading(false); // Kết thúc loading
+                });
+                if (response.data.success) {
+                    setCars(response.data.data)
                 }
-            };
+                setError(response.data.message)
+                // Handle success (e.g., show a success message or update the UI)
+            } catch (error) {
+                console.error('There was an error updating the user!', error);
+                // Handle error (e.g., show an error message)
+            } finally {
+                setLoading(false); // Kết thúc loading
+            }
+        };
         fetchCards()
-    },[isCreateCar])
+    }, [isCreateCar])
 
     useEffect(() => {
         const fetchFavouriteGarage = async () => {
-            setLoading(true); 
-                try {
-                    const token = localStorage.getItem('token');
-                    setLoading(true); 
-                    const response = await axios.get(`${config.apiBaseUrl}/client/favourite-garage`, {
-                        headers: {
-                            'Authorization': `Bearer ${token}` 
-                        }
-                    });
-                    if(response.data.success){
-                        setFavouriteGarage(response.data.data)
+            setLoading(true);
+            try {
+                const token = localStorage.getItem('token');
+                setLoading(true);
+                const response = await axios.get(`${config.apiBaseUrl}/client/favourite-garage`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
                     }
-                    setError(response.data.message)
-                    // Handle success (e.g., show a success message or update the UI)
-                } catch (error) {
-                    console.error('There was an error updating the user!', error);
-                    // Handle error (e.g., show an error message)
-                } finally {
-                    setLoading(false); // Kết thúc loading
+                });
+                if (response.data.success) {
+                    setFavouriteGarage(response.data.data)
                 }
-            };
+                setError(response.data.message)
+                // Handle success (e.g., show a success message or update the UI)
+            } catch (error) {
+                console.error('There was an error updating the user!', error);
+                // Handle error (e.g., show an error message)
+            } finally {
+                setLoading(false); // Kết thúc loading
+            }
+        };
         fetchFavouriteGarage()
-    },[])
+    }, [])
 
     const [imageFile, setImageFile] = useState(null);
 
@@ -183,7 +182,7 @@ const Profile = () => {
             [name]: value
         }));
     };
-    
+
 
     const handleImageChange = (setter) => (e) => {
         const file = e.target.files[0];
@@ -213,19 +212,19 @@ const Profile = () => {
 
         const token = localStorage.getItem('token');
         try {
-            setLoading(true); 
+            setLoading(true);
             const response = await axios.post(`${config.apiBaseUrl}/client/profile/update`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            if(response.data.success){
+            if (response.data.success) {
                 localStorage.setItem('user', JSON.stringify((response.data.data)));
                 setIsUpdate(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
                 setImageFile(null)
             }
-            
+
             console.log(response.data);
             // Handle success (e.g., show a success message or update the UI)
         } catch (error) {
@@ -249,14 +248,14 @@ const Profile = () => {
 
         const token = localStorage.getItem('token');
         try {
-            setLoading(true); 
+            setLoading(true);
             const response = await axios.post(`${config.apiBaseUrl}/client/profile/create-car`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            if(response.data.success){
+            if (response.data.success) {
                 setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
                 setImageFile(null)
                 setCreateCarDi(false)
@@ -268,7 +267,7 @@ const Profile = () => {
                     image: ''
                 })
             }
-            
+
             console.log(response.data);
             // Handle success (e.g., show a success message or update the UI)
         } catch (error) {
@@ -283,13 +282,13 @@ const Profile = () => {
 
         const token = localStorage.getItem('token');
         try {
-            setLoading(true); 
+            setLoading(true);
             const response = await axios.get(`${config.apiBaseUrl}/client/profile/get-car/${id}`, {
                 headers: {
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            if(response.data.success){
+            if (response.data.success) {
                 const data = response.data.data
                 setCarUpdate({
                     id: data.id,
@@ -326,14 +325,14 @@ const Profile = () => {
         }
         const token = localStorage.getItem('token');
         try {
-            setLoading(true); 
+            setLoading(true);
             const response = await axios.post(`${config.apiBaseUrl}/client/profile/update-car/${carUpdate.id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}` 
+                    'Authorization': `Bearer ${token}`
                 }
             });
-            if(response.data.success){
+            if (response.data.success) {
                 setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER))
                 setImageFile(null)
                 setUpdateCarDi(false)
@@ -365,20 +364,20 @@ const Profile = () => {
 
     const handleDeleteCar = async (id) => {
         const token = localStorage.getItem('token');
-    
+
         const confirmDelete = window.confirm("Are you sure you want to delete this car?");
         if (!confirmDelete) {
             return;
         }
-    
+
         try {
-            setLoading(true); 
+            setLoading(true);
             const response = await axios.get(`${config.apiBaseUrl}/client/profile/delete-car/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
-    
+
             if (response.data.success) {
                 // Handle success (e.g., refresh the car list)
                 setIscreateCar(Math.floor(Math.random() * Number.MAX_SAFE_INTEGER));
@@ -399,56 +398,56 @@ const Profile = () => {
         const hasLowerCase = /[a-z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
         return hasUpperCase && hasLowerCase && hasNumber;
-    };    
+    };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
         if (!oldPassword || !newPassword || !confirmPass) {
             setErrorChangePass('Vui lòng điền đủ thông tin');
             return;
-          }
+        }
         if (!validatePassword(newPassword)) {
             setErrorChangePass('Mật khẩu mới phải chứa ít nhất một ký tự viết hoa, một ký tự viết thường và một số');
             return;
-          }
+        }
         if (newPassword !== confirmPass) {
             setErrorChangePass('Mật khẩu mới và xác nhận mật khẩu không trùng khớp');
             return;
-          }
+        }
         const token = localStorage.getItem('token');
         setLoading(true);
         try {
             const response = await axios.post(`${config.apiBaseUrl}/auth/repass`,
                 {
-                  oldPassword: oldPassword,
-                  newPassword: newPassword,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword,
                 },
                 {
-                  headers: {
-                    Authorization: `Bearer ${token}`
-                  }
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
                 }
-              );
+            );
             setLoading(false);
-          if (response.data.success === false) {
-            setErrorChangePass('Mật khẩu cũ không đúng');
-          } else {
-            
-            setErrorChangePass('');
-            setNewPassword('')
-            setOldPassword('')
-            setConfirmPass('')
-            alert('Đổi mật khẩu thành công');
-          }
-       
+            if (response.data.success === false) {
+                setErrorChangePass('Mật khẩu cũ không đúng');
+            } else {
+
+                setErrorChangePass('');
+                setNewPassword('')
+                setOldPassword('')
+                setConfirmPass('')
+                alert('Đổi mật khẩu thành công');
+            }
+
         } catch (error) {
-          console.error('Error changing password:', error);
-          setErrorChangePass('Có lỗi xảy ra, vui lòng thử lại sau');
+            console.error('Error changing password:', error);
+            setErrorChangePass('Có lỗi xảy ra, vui lòng thử lại sau');
         } finally {
             setLoading(false); // Kết thúc loading
         }
-      };
-    
+    };
+
 
     const toggle = tab => {
         if (activeTab !== tab) setActiveTab(tab);
@@ -556,17 +555,18 @@ const Profile = () => {
                     </div>
                 </div>
                 <div className="client col-lg-9 col-md-7 col-sm-7 col-12 mt-3">
-                <div style={{ position: 'relative' }}>
-                    {loading && (
-                        <div style={loadingOverlayStyle}>
-                            <ReactLoading
-                                type="spin"
-                                color="#000"
-                                height={50}
-                                width={50}
-                            />
-                        </div>
-                    )}</div>
+                    <div style={{ position: 'relative' }}>
+                        {loading && (
+                            <div style={loadingOverlayStyle}>
+                                <ReactLoading
+                                    type="spin"
+                                    color="#000"
+                                    height={50}
+                                    width={50}
+                                />
+                            </div>
+                        )}
+                    </div>
                     <div className="client tab-content" id="v-pills-tabContent">
                         {/* Thông tin cá nhân */}
                         <div
@@ -580,14 +580,14 @@ const Profile = () => {
                                     <div className="client col-lg-4 col-xlg-3 col-md-12">
                                         <div className="client ">
                                             <div className="client img-fluid">
-                                            <img
-                                                width="80%"
-                                                height="80%"
-                                                alt="user"
-                                                className="client avatar"
-                                                id="avatar"
-                                                src={user.image || require('../../assets/images/default-ava.webp')}
-                                            />
+                                                <img
+                                                    width="80%"
+                                                    height="80%"
+                                                    alt="user"
+                                                    className="client avatar"
+                                                    id="avatar"
+                                                    src={user.image || require('../../assets/images/default-ava.webp')}
+                                                />
                                             </div>
                                             <div className="client user-btm-box mt-3 d-md-flex">
                                                 <div className="client col-md-2 col-sm-2 text-start mt-2">
@@ -712,9 +712,9 @@ const Profile = () => {
                                                                 Thành phố/Tỉnh
                                                             </option>
                                                             {cities.map((city) => (
-                                                            <option key={city.id} value={city.id}>
-                                                                {city.name}
-                                                            </option>
+                                                                <option key={city.id} value={city.id}>
+                                                                    {city.name}
+                                                                </option>
                                                             ))}
                                                         </select>
                                                         <span className="client text-danger" id="provinceErrorMsg" />
@@ -729,11 +729,11 @@ const Profile = () => {
                                                                 value={user.id_district}
                                                                 onChange={handleInputChange(setUser)}
                                                             >
-                                                            {districts.map((district) => (
-                                                            <option key={district.id} value={district.id}>
-                                                                {district.name}
-                                                            </option>
-                                                            ))}
+                                                                {districts.map((district) => (
+                                                                    <option key={district.id} value={district.id}>
+                                                                        {district.name}
+                                                                    </option>
+                                                                ))}
                                                             </select>
                                                             <span className="client text-danger" id="distristErrorMsg" />
                                                         </div>
@@ -747,11 +747,11 @@ const Profile = () => {
                                                                     value={user.id_ward}
                                                                     onChange={handleInputChange(setUser)}
                                                                 >
-                                                                {wards.map((ward) => (
-                                                                <option key={ward.id} value={ward.id}>
-                                                                    {ward.name}
-                                                                </option>
-                                                                ))}
+                                                                    {wards.map((ward) => (
+                                                                        <option key={ward.id} value={ward.id}>
+                                                                            {ward.name}
+                                                                        </option>
+                                                                    ))}
                                                                 </select>
                                                                 <span className="client text-danger" id="wardErrorMsg" />
                                                             </div>
@@ -789,127 +789,127 @@ const Profile = () => {
                             <div className="client row g-4 mt-1" id="allcar">
                                 {cars.map(car => (
                                     <div className="client col-lg-6 col-md-6" key={car.id}>
-                                        <div className="client property-item rounded overflow-hidden" style={{width: '430px'}}>
-                                        <div className="client position-relative overflow-hidden">
-                                            <a href="#">
-                                            <img className="client img-fluid" src={car.image} alt={car.name} />
-                                            </a>
-                                            <div className="client bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
-                                            {car.license}
+                                        <div className="client property-item rounded overflow-hidden" style={{ width: '430px' }}>
+                                            <div className="client position-relative overflow-hidden">
+                                                <a href="#">
+                                                    <img className="client img-fluid" src={car.image} alt={car.name} />
+                                                </a>
+                                                <div className="client bg-white rounded-top text_red position-absolute start-0 bottom-0 mx-4 pt-1 px-3">
+                                                    {car.license}
+                                                </div>
+                                            </div>
+                                            <div className="client p-4 pb-0">
+                                                <h5 className="client text_red mb-3">{car.name}</h5>
+                                                <p>Type: {car.type}</p>
+                                            </div>
+                                            <div className="client d-flex">
+                                                <small className="client flex-fill text-start py-2 ms-4 me-1">
+                                                    <button
+                                                        type="button"
+                                                        className="client btn btn-dark w-100 d-flex justify-content-center"
+                                                        onClick={() => getCarById(car.id)}
+                                                    >
+                                                        Cập nhật
+                                                    </button>
+                                                </small>
+                                                <small className="client flex-fill text-start py-2 me-4 ms-1">
+                                                    <button
+                                                        className="client btn btn-primary w-100 d-flex justify-content-center"
+                                                        onClick={() => handleDeleteCar(car.id)}
+                                                    >
+                                                        Xóa
+                                                    </button>
+                                                </small>
                                             </div>
                                         </div>
-                                        <div className="client p-4 pb-0">
-                                            <h5 className="client text_red mb-3">{car.name}</h5>
-                                            <p>Type: {car.type}</p>
-                                        </div>
-                                        <div className="client d-flex">
-                                            <small className="client flex-fill text-start py-2 ms-4 me-1">
-                                            <button
-                                                type="button"
-                                                className="client btn btn-dark w-100 d-flex justify-content-center"
-                                                onClick={() => getCarById(car.id)}
-                                            >
-                                                Cập nhật
-                                            </button>
-                                            </small>
-                                            <small className="client flex-fill text-start py-2 me-4 ms-1">
-                                            <button
-                                                className="client btn btn-primary w-100 d-flex justify-content-center"
-                                                onClick={() => handleDeleteCar(car.id)}
-                                            >
-                                                Xóa
-                                            </button>
-                                            </small>
-                                        </div>
-                                        </div>
                                     </div>
-                                    ))}
-                                    <Dialog header="Header" visible={createCarDi} style={{ width: '50vw' }} onHide={() => {if (!createCarDi) return; setCreateCarDi(false); }}>
+                                ))}
+                                <Dialog header="Header" visible={createCarDi} style={{ width: '50vw' }} onHide={() => { if (!createCarDi) return; setCreateCarDi(false); }}>
                                     <div className="client modal-body">
                                         <form onSubmit={handleCreateCar}>
-                                        <div className="client mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
-                                        <input type="file" id="image" name="image" onChange={handleImageChange(setNewCar)} />
-                                            <img 
-                                                className="client img-fluid" 
-                                                width="40%"
-                                                height="40%"
-                                                alt="car"
-                                                id="image"
-                                                src={newCar.image || require('../../assets/images/car_default.png')}
-                                            />
-                                            
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="brand" className="client form-label">Hãng xe:</label>
-                                            <select className="client form-control" id="brand" name="brand" value={newCar.brand} onChange={handleInputChange(setNewCar)}>
-                                            <option value="">Chọn hãng xe</option>
-                                            {vehicles.map(vehicle => (
-                                                <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
-                                            ))}
-                                            </select>
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="name" className="client form-label">Tên xe:</label>
-                                            <input type="text" className="client form-control" id="name" name="name" value={newCar.name} onChange={handleInputChange(setNewCar)} />
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="license" className="client form-label">Biển số:</label>
-                                            <input type="text" className="client form-control" id="license" name="license" value={newCar.license} onChange={handleInputChange(setNewCar)} />
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="type" className="client form-label">Kiểu xe:</label>
-                                            <input type="text" className="client form-control" id="type" name="type" value={newCar.type} onChange={handleInputChange(setNewCar)} />
-                                        </div>
-                                        <div className="client d-flex justify-content-center">
-                                            <button type="submit" className="client btn btn-primary">Thêm xe</button>
-                                        </div>
+                                            <div className="client mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
+                                                <input type="file" id="image" name="image" onChange={handleImageChange(setNewCar)} />
+                                                <img
+                                                    className="client img-fluid"
+                                                    width="40%"
+                                                    height="40%"
+                                                    alt="car"
+                                                    id="image"
+                                                    src={newCar.image || require('../../assets/images/car_default.png')}
+                                                />
+
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="brand" className="client form-label">Hãng xe:</label>
+                                                <select className="client form-control" id="brand" name="brand" value={newCar.brand} onChange={handleInputChange(setNewCar)}>
+                                                    <option value="">Chọn hãng xe</option>
+                                                    {vehicles.map(vehicle => (
+                                                        <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="name" className="client form-label">Tên xe:</label>
+                                                <input type="text" className="client form-control" id="name" name="name" value={newCar.name} onChange={handleInputChange(setNewCar)} />
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="license" className="client form-label">Biển số:</label>
+                                                <input type="text" className="client form-control" id="license" name="license" value={newCar.license} onChange={handleInputChange(setNewCar)} />
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="type" className="client form-label">Kiểu xe:</label>
+                                                <input type="text" className="client form-control" id="type" name="type" value={newCar.type} onChange={handleInputChange(setNewCar)} />
+                                            </div>
+                                            <div className="client d-flex justify-content-center">
+                                                <button type="submit" className="client btn btn-primary">Thêm xe</button>
+                                            </div>
                                         </form>
                                     </div>
-                                 </Dialog>
-                                 <Dialog header="Header" visible={updateCarDi} style={{ width: '50vw' }} onHide={() => {if (!updateCarDi) return; setUpdateCarDi(false); }}>
+                                </Dialog>
+                                <Dialog header="Header" visible={updateCarDi} style={{ width: '50vw' }} onHide={() => { if (!updateCarDi) return; setUpdateCarDi(false); }}>
                                     <div className="client modal-body">
                                         <div>
-                                        <div className="client mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
-                                        <input type="file" id="image" name="image" onChange={handleImageChange(setCarUpdate)} />
-                                            <img 
-                                                className="client img-fluid" 
-                                                width="40%"
-                                                height="40%"
-                                                alt="car"
-                                                id="image"
-                                                src={carUpdate.image || require('../../assets/images/car_default.png')}
-                                            />
-                                            
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="brand" className="client form-label">Hãng xe:</label>
-                                            <select className="client form-control" id="brand" name="brand" value={carUpdate.brand} onChange={handleInputChange(setCarUpdate)}>
-                                            <option value="">Chọn hãng xe</option>
-                                            {vehicles.map(vehicle => (
-                                                <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
-                                            ))}
-                                            </select>
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="name" className="client form-label">Tên xe:</label>
-                                            <input type="text" className="client form-control" id="name" name="name" value={carUpdate.name} onChange={handleInputChange(setCarUpdate)} />
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="license" className="client form-label">Biển số:</label>
-                                            <input type="text" className="client form-control" id="license" name="license" value={carUpdate.license} onChange={handleInputChange(setCarUpdate)} />
-                                        </div>
-                                        <div className="client mb-3">
-                                            <label htmlFor="type" className="client form-label">Kiểu xe:</label>
-                                            <input type="text" className="client form-control" id="type" name="type" value={carUpdate.type} onChange={handleInputChange(setCarUpdate)} />
-                                        </div>
-                                        <div className="client d-flex justify-content-center">
-                                            <button type="submit" onClick={handleUpdateCar} className="client btn btn-primary">Cập nhật</button>
-                                        </div>
+                                            <div className="client mb-3 text-center" style={{ display: 'grid', gridTemplateColumns: 'auto auto', gap: '10px' }}>
+                                                <input type="file" id="image" name="image" onChange={handleImageChange(setCarUpdate)} />
+                                                <img
+                                                    className="client img-fluid"
+                                                    width="40%"
+                                                    height="40%"
+                                                    alt="car"
+                                                    id="image"
+                                                    src={carUpdate.image || require('../../assets/images/car_default.png')}
+                                                />
+
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="brand" className="client form-label">Hãng xe:</label>
+                                                <select className="client form-control" id="brand" name="brand" value={carUpdate.brand} onChange={handleInputChange(setCarUpdate)}>
+                                                    <option value="">Chọn hãng xe</option>
+                                                    {vehicles.map(vehicle => (
+                                                        <option key={vehicle.id} value={vehicle.id}>{vehicle.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="name" className="client form-label">Tên xe:</label>
+                                                <input type="text" className="client form-control" id="name" name="name" value={carUpdate.name} onChange={handleInputChange(setCarUpdate)} />
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="license" className="client form-label">Biển số:</label>
+                                                <input type="text" className="client form-control" id="license" name="license" value={carUpdate.license} onChange={handleInputChange(setCarUpdate)} />
+                                            </div>
+                                            <div className="client mb-3">
+                                                <label htmlFor="type" className="client form-label">Kiểu xe:</label>
+                                                <input type="text" className="client form-control" id="type" name="type" value={carUpdate.type} onChange={handleInputChange(setCarUpdate)} />
+                                            </div>
+                                            <div className="client d-flex justify-content-center">
+                                                <button type="submit" onClick={handleUpdateCar} className="client btn btn-primary">Cập nhật</button>
+                                            </div>
                                         </div>
                                     </div>
-                                 </Dialog>
+                                </Dialog>
                             </div>
-                            
+
                         </div>
                         {/* Đổi mật khẩu */}
                         <div
@@ -949,7 +949,7 @@ const Profile = () => {
                                                     id="current_password"
                                                     name="oldPassword"
                                                     className="client form-control"
-                                                    value={oldPassword} 
+                                                    value={oldPassword}
                                                     onChange={(e) => setOldPassword(e.target.value)}
                                                 />
                                                 <span className="client text-danger" id="curPassErrorMsg" />
@@ -967,7 +967,7 @@ const Profile = () => {
                                                     id="password"
                                                     name="password"
                                                     className="client form-control"
-                                                    value={newPassword} 
+                                                    value={newPassword}
                                                     onChange={(e) => setNewPassword(e.target.value)}
                                                 />
                                                 <span className="client text-danger" id="passErrorMsg" />
@@ -988,7 +988,7 @@ const Profile = () => {
                                                     id="password_confirmation"
                                                     name="confirmPass"
                                                     className="client form-control"
-                                                    value={confirmPass} 
+                                                    value={confirmPass}
                                                     onChange={(e) => setConfirmPass(e.target.value)}
                                                 />
                                                 <span className="client text-danger" id="cpassErrorMsg" />
@@ -1021,81 +1021,81 @@ const Profile = () => {
                                     id="favourite"
                                 >
                                     {favouriteGarage.map(garage => (
-                                    <div className="client property-item rounded overflow-hidden">
-                                        <div className="client position-relative overflow-hidden">
-                                            <a href="">
-                                                <img
-                                                    className="client img-fluid"
-                                                    style={{ width: "100%", height: "80%" }}
-                                                    src=""
-                                                    alt=""
-                                                />
-                                            </a>
-                                            
-                                        </div>
-                                        <div className="client p-3 pb-0">
-                                            <h5 className="client text_red mb-3">$12,345</h5>
-                                            <a className="client d-block h5 mb-2" href="" style={{ height: 48 }}>
-                                                
-                                            </a>
-                                            <p
-                                                className="client mt-2 "
-                                                style={{
-                                                    height: 48,
-                                                    overflow: "hidden",
-                                                    display: "-webkit-box",
-                                                    WebkitLineClamp: 2,
-                                                    WebkitBoxOrient: "vertical"
-                                                }}
-                                            >
-                                                {garage.address_detail}
-                                                <i className="client fa fa-map-marker-alt text_red me-2" />
-
-                                            </p>
-                                        </div>
-                                        <div className="client d-flex">
-                                            <small className="client flex-fill text-start mx-3">Đánh giá</small>
-                                            <small className="client flex-fill text-start pb-2 ms-5">
-                                                <i className="client bi bi-star-fill text_red ms-4" />
-                                                <i className="client bi bi-star-fill text_red" />
-                                                <i className="client bi bi-star-fill text_red" />
-                                                <i className="client bi bi-star-fill text_red" />
-                                                <i className="client bi bi-star-fill text_red" />5
-                                            </small>
-                                        </div>
-                                        <div className="client d-flex border-top mt-2">
-                                            <small className="client flex-fill text-start border-end py-2 mx-4">
-                                                <i className="client far fa-calendar-plus text_red me-3" />
-                                                <a href="" className="client text_red">
-                                                    Đặt lịch ngay
-                                                </a>
-                                            </small>
-                                            <small className="client flex-fill text-start py-2">
-                                                <i className="client bi bi-chat-dots-fill text_red me-2 d-inline-block" />
-                                                <form
-                                                    action=""
-                                                    className="client d-inline-block"
-                                                    method="POST"
-                                                >
-                                                    <input
-                                                        type="hidden"
-                                                        name="id_garage"
-                                                        defaultValue=""
+                                        <div className="client property-item rounded overflow-hidden">
+                                            <div className="client position-relative overflow-hidden">
+                                                <a href="">
+                                                    <img
+                                                        className="client img-fluid"
+                                                        style={{ width: "100%", height: "80%" }}
+                                                        src=""
+                                                        alt=""
                                                     />
-                                                    <button
-                                                        className="client text_red"
-                                                        type="submit"
-                                                        style={{
-                                                            backgroundColor: "transparent",
-                                                            border: "none"
-                                                        }}
+                                                </a>
+
+                                            </div>
+                                            <div className="client p-3 pb-0">
+                                                <h5 className="client text_red mb-3">$12,345</h5>
+                                                <a className="client d-block h5 mb-2" href="" style={{ height: 48 }}>
+
+                                                </a>
+                                                <p
+                                                    className="client mt-2 "
+                                                    style={{
+                                                        height: 48,
+                                                        overflow: "hidden",
+                                                        display: "-webkit-box",
+                                                        WebkitLineClamp: 2,
+                                                        WebkitBoxOrient: "vertical"
+                                                    }}
+                                                >
+                                                    {garage.address_detail}
+                                                    <i className="client fa fa-map-marker-alt text_red me-2" />
+
+                                                </p>
+                                            </div>
+                                            <div className="client d-flex">
+                                                <small className="client flex-fill text-start mx-3">Đánh giá</small>
+                                                <small className="client flex-fill text-start pb-2 ms-5">
+                                                    <i className="client bi bi-star-fill text_red ms-4" />
+                                                    <i className="client bi bi-star-fill text_red" />
+                                                    <i className="client bi bi-star-fill text_red" />
+                                                    <i className="client bi bi-star-fill text_red" />
+                                                    <i className="client bi bi-star-fill text_red" />5
+                                                </small>
+                                            </div>
+                                            <div className="client d-flex border-top mt-2">
+                                                <small className="client flex-fill text-start border-end py-2 mx-4">
+                                                    <i className="client far fa-calendar-plus text_red me-3" />
+                                                    <a href="" className="client text_red">
+                                                        Đặt lịch ngay
+                                                    </a>
+                                                </small>
+                                                <small className="client flex-fill text-start py-2">
+                                                    <i className="client bi bi-chat-dots-fill text_red me-2 d-inline-block" />
+                                                    <form
+                                                        action=""
+                                                        className="client d-inline-block"
+                                                        method="POST"
                                                     >
-                                                        Nhắn tin
-                                                    </button>
-                                                </form>
-                                            </small>
+                                                        <input
+                                                            type="hidden"
+                                                            name="id_garage"
+                                                            defaultValue=""
+                                                        />
+                                                        <button
+                                                            className="client text_red"
+                                                            type="submit"
+                                                            style={{
+                                                                backgroundColor: "transparent",
+                                                                border: "none"
+                                                            }}
+                                                        >
+                                                            Nhắn tin
+                                                        </button>
+                                                    </form>
+                                                </small>
+                                            </div>
                                         </div>
-                                    </div>
                                     ))}
                                 </div>
                             </div>
@@ -1507,7 +1507,6 @@ const Profile = () => {
                                                                 id="form_report"
                                                                 encType="multipart/form-data"
                                                             >
-                                                                @csrf
                                                                 <input
                                                                     type="hidden"
                                                                     name="id_order_report"

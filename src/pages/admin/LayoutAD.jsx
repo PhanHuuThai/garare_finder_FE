@@ -26,11 +26,11 @@ const LayoutAD = (props) => {
     const getTitleFromPath = (path) => {
         switch (path) {
             case '/':
-                return 'Garage'
-            case '/services':
-                return 'Service'
+                return 'Admin'
+            case '/users':
+                return 'Danh sách người dùng'
             case '/brands':
-                return 'Brand'
+                return 'Hãng xe'
             case '/service':
                 return ' Dịch vụ'
             case '/login':
