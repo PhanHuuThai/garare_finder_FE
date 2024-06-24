@@ -4,7 +4,7 @@ import config from '../../config';
 import ReactLoading from 'react-loading';
 import { useState } from 'react';
 
-const LeftSlide = () => {
+const LeftSlideAD = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate()
     const token = localStorage.getItem('token');
@@ -14,8 +14,9 @@ const LeftSlide = () => {
             setLoading(true)
             const response = await axios.get(`${config.apiBaseUrl}/auth/logout`, {
                 headers: {
-                    'Authorization': `Bearer ${token}` 
-                }});
+                    'Authorization': `Bearer ${token}`
+                }
+            });
             console.log(response)
             if (response.data.status) {
                 localStorage.removeItem('token');
@@ -42,16 +43,16 @@ const LeftSlide = () => {
     return (
         <aside className="left-sidebar" data-sidebarbg="skin6">
             <div style={{ position: 'relative' }}>
-                    {loading && (
-                        <div style={loadingOverlayStyle}>
-                            <ReactLoading
-                                type="spin"
-                                color="#000"
-                                height={50}
-                                width={50}
-                            />
-                        </div>
-                    )}</div>
+                {loading && (
+                    <div style={loadingOverlayStyle}>
+                        <ReactLoading
+                            type="spin"
+                            color="#000"
+                            height={50}
+                            width={50}
+                        />
+                    </div>
+                )}</div>
             {/* Sidebar scroll*/}
             <div className="scroll-sidebar">
                 {/* Sidebar navigation*/}
@@ -103,16 +104,6 @@ const LeftSlide = () => {
                                 to="/admin/register-garage"
                                 aria-expanded="false"
                             >
-                                <i className="fas fa-car" aria-hidden="true" />
-                                <span className="hide-menu">Hãng xe</span>
-                            </Link>
-                        </li>
-                        <li className="sidebar-item">
-                            <Link
-                                className="sidebar-link waves-effect waves-dark sidebar-link"
-                                to="/garage/order-history"
-                                aria-expanded="false"
-                            >
                                 <i class="fas fa-edit" aria-hidden="true"></i>
                                 <span className="hide-menu">Đơn đăng ký garage</span>
                             </Link>
@@ -140,7 +131,7 @@ const LeftSlide = () => {
                         <li className="sidebar-item">
                             <Link
                                 className="sidebar-link waves-effect waves-dark sidebar-link"
-                                to="/garage/staff-change-pass"
+                                to="/admin/helps"
                                 aria-expanded="false"
                             >
                                 <i className="fas fa-lock" aria-hidden="true" />
@@ -187,4 +178,4 @@ const LeftSlide = () => {
     )
 }
 
-export default LeftSlide
+export default LeftSlideAD

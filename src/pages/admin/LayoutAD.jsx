@@ -8,7 +8,7 @@ import '../../assets/admin/css/style.min.css'
 import { Outlet, Link, useLocation } from "react-router-dom"
 import Header from '../../components/garage-owner/Header.jsx';
 import Footer from '../../components/garage-owner/Footer.jsx';
-import LeftSlide from '../../components/garage-owner/LeftSilde.jsx';
+import LeftSlideAD from '../../components/admin/LeftSildeAdmin.jsx';
 
 const LayoutAD = (props) => {
     const location = useLocation()
@@ -98,7 +98,7 @@ const LayoutAD = (props) => {
                     </div>
                 </div>
                 {/* Left Sidebar */}
-                <LeftSlide />
+                <LeftSlideAD />
                 {/* End Left Sidebar */}
                 {/* Page main  */}
                 <Outlet />

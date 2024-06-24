@@ -8,7 +8,7 @@ import '../../assets/admin/css/style.min.css'
 import { Outlet, Link, useLocation } from "react-router-dom"
 import Header from '../../components/garage-owner/Header.jsx';
 import Footer from '../../components/garage-owner/Footer.jsx';
-import LeftSlide from '../../components/garage-owner/LeftSilde.jsx';
+import LeftSlide from '../../components/garage-owner/LeftSlide.jsx';
 
 const LayoutG = (props) => {
     const location = useLocation()

@@ -28,6 +28,8 @@ import UserList from './pages/admin/UserList'
 import GarageListAD from './pages/admin/Garages'
 import BrandList from './pages/admin/Brands'
 import ServiceList from './pages/admin/Services'
+import ReportList from './pages/admin/Reports'
+import HelpList from './pages/admin/Helps'
 
 function App() {
   return (
@@ -79,12 +81,9 @@ function App() {
             <Route path="brands" element={<BrandList />} />
             <Route path="users" element={<UserList />} />
             <Route path="garages" element={<GarageListAD />} />
-            <Route path="staffs" element={<StaffList />} />
-            <Route path="orders" element={<GarageOrder />} />
-            <Route path="order-history" element={<GarageOrderHistory />} />
-            <Route path="staff-info" element={<StaffInfo />} />
-            <Route path="staff-change-pass" element={<ChangeStaffPass />} />
-
+            <Route path="register-garage" element={<RegisterGarage />} />
+            <Route path="reports" element={<ReportList />} />
+            <Route path="helps" element={<HelpList />} />
           </Route>
         </Routes>
       </BrowserRouter>
