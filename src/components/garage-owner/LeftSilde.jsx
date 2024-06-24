@@ -1,8 +1,57 @@
-import { Link } from "react-router-dom"
+import axios from 'axios';
+import { Link, useNavigate } from "react-router-dom"
+import config from '../../config';
+import ReactLoading from 'react-loading';
+import { useState } from 'react';
 
 const LeftSlide = () => {
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate()
+    const token = localStorage.getItem('token');
+    const handleLogout = async (e) => {
+        // e.preventDefault()
+        try {
+            setLoading(true)
+            const response = await axios.get(`${config.apiBaseUrl}/auth/logout`, {
+                headers: {
+                    'Authorization': `Bearer ${token}` 
+                }});
+            console.log(response)
+            if (response.data.status) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                navigate('/')
+            }
+            setLoading(false)
+        } catch (error) {
+        }
+    }
+    const loadingOverlayStyle = {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // Optional: Adds a semi-transparent background
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 9999
+
+    };
     return (
         <aside className="left-sidebar" data-sidebarbg="skin6">
+            <div style={{ position: 'relative' }}>
+                    {loading && (
+                        <div style={loadingOverlayStyle}>
+                            <ReactLoading
+                                type="spin"
+                                color="#000"
+                                height={50}
+                                width={50}
+                            />
+                        </div>
+                    )}</div>
             {/* Sidebar scroll*/}
             <div className="scroll-sidebar">
                 {/* Sidebar navigation*/}
@@ -117,11 +166,13 @@ const LeftSlide = () => {
                             >
                                 <i className="fa fa-info-circle" aria-hidden="true" />
                                 <span className="hide-menu">
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        <button className="bg-white border-0" type="submit">
+                                    <div>
+                                        <button className="bg-white border-0"
+                                            onClick={() => handleLogout()}
+                                        >
                                             Đăng xuất
                                         </button>
-                                    </form>
+                                    </div>
                                 </span>
                             </a>
                         </li>

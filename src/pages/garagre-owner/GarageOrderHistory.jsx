@@ -9,6 +9,7 @@ const GarageOrderHistory = () => {
     const id = localStorage.getItem("garageId");
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [orderDetail, steOrderDetail] = useState([])
 
     useEffect(() => {
         const fetchOrders = async () => {
@@ -34,6 +35,27 @@ const GarageOrderHistory = () => {
 
         fetchOrders();
     }, []);
+
+    const fetchOrderDetail = async (id) => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`${config.apiBaseUrl}/garage/order/order-detail/${id}`, {
+            headers: {
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+            if (response.data.success) {
+                steOrderDetail(response.data.data);
+            } else {
+                setError(response.data.message);
+            }
+        } catch (error) {
+            setError('Có lỗi xảy ra khi lấy thông tin đơn hàng của garage');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const loadingOverlayStyle = {
         position: 'fixed',
@@ -172,6 +194,7 @@ const GarageOrderHistory = () => {
                                                         className="btn btn-outline-danger mt-1 me-2"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#staticBackdrop"
+                                                        onClick={() => fetchOrderDetail(order.id)}
                                                     >
                                                         <i className="bi bi-calendar-plus-fill" />
                                                         Chi tiết
@@ -209,7 +232,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        name
+                                                                                        {order.name}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -223,7 +246,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        phone
+                                                                                        {order.phone}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -237,7 +260,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        car_name
+                                                                                    {order.car_name}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -249,7 +272,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        brand
+                                                                                        {order.brand_name}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -263,7 +286,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        service
+                                                                                        {order.service_name}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -275,7 +298,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        license
+                                                                                        {order.license}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -289,7 +312,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        time
+                                                                                        {order.time}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
@@ -301,13 +324,13 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                                 <div className="col-sm-7">
                                                                                     <span>
-                                                                                        create_at
+                                                                                        {order.create_at}
                                                                                     </span>
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    <div className="row mb-3 text-start">
+                                                                    {/* <div className="row mb-3 text-start">
                                                                         <div className="col-sm-6">
                                                                             <div className="row">
                                                                                 <div className="col-sm-5">
@@ -337,7 +360,7 @@ const GarageOrderHistory = () => {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                    </div>
+                                                                    </div> */}
                                                                     <h5>Chi tiết dịch vụ</h5>
                                                                     <div className="table-responsive">
 
@@ -355,36 +378,38 @@ const GarageOrderHistory = () => {
                                                                                 </tr>
                                                                             </thead>
                                                                             <tbody id="body_table">
+                                                                                {orderDetail.map((order) => (
                                                                                 <tr>
-                                                                                    <td>
-                                                                                        <div className="col-md-12 p-0">
-                                                                                            <p>
-                                                                                                name
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div className="col-md-12 p-0">
-                                                                                            <p>
-                                                                                                qty
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div className="col-md-12 p-0">
-                                                                                            <p>
-                                                                                                price
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                    <td>
-                                                                                        <div className="col-md-12 p-0">
-                                                                                            <p>
-                                                                                                note
-                                                                                            </p>
-                                                                                        </div>
-                                                                                    </td>
-                                                                                </tr>
+                                                                                <td>
+                                                                                    <div className="col-md-12 p-0">
+                                                                                        <p>
+                                                                                            {order.name}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div className="col-md-12 p-0">
+                                                                                        <p>
+                                                                                        {order.qty}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div className="col-md-12 p-0">
+                                                                                        <p>
+                                                                                        {order.price}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <div className="col-md-12 p-0">
+                                                                                        <p>
+                                                                                        {order.note}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                </td>
+                                                                            </tr>
+                                                                                ))}
                                                                             </tbody>
                                                                         </table>
                                                                     </div>

@@ -20,7 +20,15 @@ const Login = () => {
             console.log(response)
             if (response && response.data.data.success) {
                 login(response.data)
-                navigate('/')
+                if(response.data.data.data.id_role == 1)
+                {
+                    navigate('/garage')
+                }
+                else {
+                    navigate('/')
+                }
+                
+                
             }
             setError(response.data.data.message)
         } catch (error) {
