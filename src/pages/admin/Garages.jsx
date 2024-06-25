@@ -4,43 +4,49 @@ import config from "../../config"
 import ReactPaginate from "react-paginate"
 import ReactLoading from 'react-loading'
 
+
 const GarageListAD = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [garages, setGarages] = useState([])
     const token = localStorage.getItem('token')
     const [currentPage, setCurrentPage] = useState(0)
     const garagesPerPage = 9
-    const [offset, setOffset] = useState(0)
-    const [currentGarages, setCurrentGarages] = useState([])
-    const [pageCount, setPageCount] = useState(0)
+    const [oldGarages, setOldGarages] = useState([]);
+    const [error, setError] = useState(null);
 
-    const fetchGarages = async () => {
+    useEffect(() => {
+        const fetchGarages = async () => {
         try {
-            setIsLoading(true)
-            const response = await axios.get(`${config.apiBaseUrl}/admin/garage`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            })
-            let result = response.data
-            console.log(result)
-            if (result.success) {
-                setGarages(result.data)
+            const response = await axios.get(`${config.apiBaseUrl}/client/home/get-all-garage`);
+            if(!response.data.success) {
+                setError(response.data.message)
             }
+            setGarages(response.data.data);
+            setOldGarages(response.data.data)
         } catch (error) {
+            setError(error.message);
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
-    }
+        };
+        fetchGarages();
+    }, []);
+
+    
     const handlePageClick = (data) => {
         setCurrentPage(data.selected);
     }
 
-    useEffect(() => {
-        const offset = currentPage * garagesPerPage
-        setCurrentGarages(garages.slice(offset, offset + garagesPerPage))
-        setPageCount(Math.ceil(garages.length / garagesPerPage))
-    }, [currentPage])
+
+    const handleFilter = (status) => {
+        if (status !== null) {
+            setGarages(oldGarages.filter(garage => garage.status == status));
+        } else {
+            setGarages(oldGarages);
+        }
+    };
+
+
     const loadingOverlayStyle = {
         position: 'fixed',
         top: 0,
@@ -55,9 +61,9 @@ const GarageListAD = () => {
 
     };
 
-    useEffect(() => {
-        fetchGarages()
-    }, [])
+    const offset = currentPage * garagesPerPage;
+    const currentGarages = garages.slice(offset, offset + garagesPerPage);
+    const pageCount = Math.ceil(garages.length / garagesPerPage);
 
     return (
         <div className="page-wrapper">
@@ -99,7 +105,7 @@ const GarageListAD = () => {
                             <div className="row">
                                 <div className="col-lg-3 col-md-4 col-sm-4 col-xs-12">
                                     <a
-                                        href="{{ url('/admin/garage') }}"
+                                        onClick={() => handleFilter(null)}
                                         className="btn btn-primary d-md-block mb-4 hidden-xs hidden-sm waves-effect waves-light text-white"
                                     >
                                         Tất cả
@@ -107,7 +113,7 @@ const GarageListAD = () => {
                                 </div>
                                 <div className="col-lg-3 col-md-4 col-sm-4 col-xs-12">
                                     <a
-                                        href="{{ url('/admin/garage/2') }}"
+                                        onClick={() => handleFilter(2)}
                                         className="btn btn-danger d-md-block mb-4 hidden-xs hidden-sm waves-effect waves-light text-white"
                                     >
                                         Bị khóa
@@ -115,7 +121,7 @@ const GarageListAD = () => {
                                 </div>
                                 <div className="col-lg-3 col-md-4 col-sm-4 col-xs-12">
                                     <a
-                                        href="{{ url('/admin/garage/1') }}"
+                                        onClick={() => handleFilter(3)}
                                         className="btn btn-success d-md-block mb-4 hidden-xs hidden-sm waves-effect waves-light text-white"
                                     >
                                         Đang hoạt động
