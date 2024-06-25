@@ -14,11 +14,10 @@ const GarageListAD = () => {
     const [oldGarages, setOldGarages] = useState([]);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        const fetchGarages = async () => {
+    const fetchGarages = async () => {
         try {
             const response = await axios.get(`${config.apiBaseUrl}/client/home/get-all-garage`);
-            if(!response.data.success) {
+            if (!response.data.success) {
                 setError(response.data.message)
             }
             setGarages(response.data.data);
@@ -28,11 +27,12 @@ const GarageListAD = () => {
         } finally {
             setIsLoading(false);
         }
-        };
+    };
+    useEffect(() => {
         fetchGarages();
     }, []);
 
-    
+
     const handlePageClick = (data) => {
         setCurrentPage(data.selected);
     }
@@ -65,6 +65,25 @@ const GarageListAD = () => {
     const currentGarages = garages.slice(offset, offset + garagesPerPage);
     const pageCount = Math.ceil(garages.length / garagesPerPage);
 
+    const handleUpdateGarageStatus = async (status, id) => {
+        try {
+            setIsLoading(true)
+            let formData = new FormData();
+            formData.append('status', status);
+            formData.append('_method', 'PUT');
+            const response = await axios.post(`${config.apiBaseUrl}/garage/update-status/${id}`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.data.success) {
+                await fetchGarages()
+            }
+        } catch (error) {
+            console.error('There was an error updating the user!', error)
+        }
+        setIsLoading(false)
+    }
     return (
         <div className="page-wrapper">
             <div style={{ position: 'relative' }}>
@@ -174,7 +193,7 @@ const GarageListAD = () => {
                                                             </td>
                                                             <td className="text-center">
                                                                 {
-                                                                    garage.action == '2' ? (
+                                                                    garage.status == '2' ? (
                                                                         <span
                                                                             className="badge rounded-pill bg-danger text-while font-bold"
                                                                             style={{ height: 30, width: "90%", fontSize: 14 }}
@@ -193,32 +212,23 @@ const GarageListAD = () => {
                                                             </td>
                                                             <td>
                                                                 {
-                                                                    garage.action == '2' ? (
-                                                                        <form
-                                                                            action="{{ url('/admin/garage/' . $item->id) }}"
-                                                                            method="POST"
+                                                                    garage.status == '2' ? (
+                                                                        <button
+                                                                            className="btn btn-primary rounded-pill font-bold d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
+                                                                            type="submit"
+                                                                            onClick={() => handleUpdateGarageStatus(1, garage.id)}
                                                                         >
-                                                                            <input type="hidden" name="action" defaultValue={1} />
-                                                                            <button
-                                                                                className="btn btn-primary rounded-pill font-bold d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
-                                                                                type="submit"
-                                                                            >
-                                                                                Hủy khóa
-                                                                            </button>
-                                                                        </form>
+                                                                            Hủy khóa
+                                                                        </button>
                                                                     ) : (
-                                                                        <form
-                                                                            action="{{ url('/admin/garage/' . $item->id) }}"
-                                                                            method="POST"
+
+                                                                        <button
+                                                                            className="btn btn-danger rounded-pill font-bold d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
+                                                                            type="submit"
+                                                                            onClick={() => handleUpdateGarageStatus(2, garage.id)}
                                                                         >
-                                                                            <input type="hidden" name="action" defaultValue={2} />
-                                                                            <button
-                                                                                className="btn btn-danger rounded-pill font-bold d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
-                                                                                type="submit"
-                                                                            >
-                                                                                Khóa
-                                                                            </button>
-                                                                        </form>
+                                                                            Khóa
+                                                                        </button>
                                                                     )
                                                                 }
                                                             </td>
@@ -273,7 +283,7 @@ const GarageListAD = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
 
     )
 }

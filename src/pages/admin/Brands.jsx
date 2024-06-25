@@ -102,7 +102,7 @@ const BrandList = () => {
                 }
             });
             if (response.data.success) {
-                await fetchBrands()
+                await fetchBrands(currentPage + 1)
             }
             setShowAddBrand(false)
             console.log(response.data);
@@ -138,6 +138,7 @@ const BrandList = () => {
         let formData = new FormData();
         formData.append('name', brandEdit.name);
         formData.append('description', brandEdit.description);
+        formData.append('_method', 'PUT');
         if (imageFile) {
             formData.append('image', imageFile);
         }
@@ -147,7 +148,7 @@ const BrandList = () => {
         }
         try {
             setIsLoading(true)
-            const response = await axios.put(`${config.apiBaseUrl}/admin/brand/${brandEdit.id}`, formData, {
+            const response = await axios.post(`${config.apiBaseUrl}/admin/brand/${brandEdit.id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': `Bearer ${token}`
@@ -155,7 +156,7 @@ const BrandList = () => {
             });
             if (response.data.success) {
                 setImageFile(null)
-                await fetchBrands()
+                await fetchBrands(currentPage + 1)
             }
             setShowEditBrand(false)
             console.log(response.data);
@@ -166,6 +167,25 @@ const BrandList = () => {
             setIsLoading(false)
             setShowEditBrand(false)
         }
+    }
+
+    const handleDeleteBrand = async (id) => {
+        try {
+            setIsLoading(true)
+            const response = await axios.get(`${config.apiBaseUrl}/admin/brand/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (response.data.success) {
+                await fetchBrands(currentPage + 1)
+            }
+            setShowEditBrand(false)
+        } catch (error) {
+            console.error('There was an error updating the user!', error)
+            setShowEditBrand(false)
+        }
+        setIsLoading(false)
     }
     return (
         <div className="page-wrapper text-start">
@@ -258,19 +278,16 @@ const BrandList = () => {
                                                                 <i className="fas fa-edit mx-2" aria-hidden="true" />
                                                                 Sửa
                                                             </button>
-                                                            <form
-                                                                action=""
-                                                                method="POST"
+
+                                                            <button
+                                                                className="btn btn-danger d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
+                                                                type="submit"
+                                                                style={{ width: "100px" }}
+                                                                onClick={() => handleDeleteBrand(brand.id)}
                                                             >
-                                                                <button
-                                                                    className="btn btn-danger d-md-block hidden-xs hidden-sm waves-effect waves-light text-white"
-                                                                    type="submit"
-                                                                    style={{ width: "100px" }}
-                                                                >
-                                                                    <i className="fas fa-ban mx-2" aria-hidden="true" />
-                                                                    Xóa
-                                                                </button>
-                                                            </form>
+                                                                <i className="fas fa-ban mx-2" aria-hidden="true" />
+                                                                Xóa
+                                                            </button>
                                                         </td>
                                                     </tr>
                                                 ))

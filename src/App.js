@@ -30,6 +30,7 @@ import BrandList from './pages/admin/Brands'
 import ServiceList from './pages/admin/Services'
 import ReportList from './pages/admin/Reports'
 import HelpList from './pages/admin/Helps'
+import GarageRegister from './pages/admin/GarageRegister'
 
 function App() {
   return (
@@ -81,7 +82,7 @@ function App() {
             <Route path="brands" element={<BrandList />} />
             <Route path="users" element={<UserList />} />
             <Route path="garages" element={<GarageListAD />} />
-            <Route path="register-garage" element={<RegisterGarage />} />
+            <Route path="register-garage" element={<GarageRegister />} />
             <Route path="reports" element={<ReportList />} />
             <Route path="helps" element={<HelpList />} />
           </Route>
